@@ -25,26 +25,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
+          cache: 'npm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm install --no-audit --no-fund
 
       - name: Build, lint, typecheck, and test
         run: |
-          pnpm run build
-          pnpm run typecheck
-          pnpm run lint
-          pnpm run test
+          npm run build
+          npm run typecheck
+          npm run lint
+          npm run test
 
       - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm run release
+        run: npm run release
