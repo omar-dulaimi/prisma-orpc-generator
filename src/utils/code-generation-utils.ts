@@ -179,18 +179,16 @@ export function generateProcedureCode(params: {
   const procedure = procedureType === 'public' ? 'publicProcedure' : 'protectedProcedure';
   // Build output schema expression for zod
   let outputSchemaExpr: string | undefined = undefined;
-  if (config.generateOutputValidation) {
-    if (config.schemaLibrary === 'zod') {
-      // Use conservative, always-available schemas to avoid depending on non-standard exports
-      if (baseOpType === 'groupBy') outputSchemaExpr = 'z.unknown()';
-      else if (baseOpType === 'aggregate') outputSchemaExpr = 'z.unknown()';
-      else if (['createMany', 'updateMany', 'deleteMany', 'count'].includes(baseOpType))
-        outputSchemaExpr = 'z.object({ count: z.number().int().nonnegative() })';
-      else if (baseOpType === 'findMany') outputSchemaExpr = 'z.array(z.unknown())';
-      else outputSchemaExpr = 'z.unknown()';
-    } else if (outputType) {
-      outputSchemaExpr = `${outputType}Schema`;
-    }
+  if (config.generateOutputValidation && config.schemaLibrary === 'zod') {
+    // Use conservative, always-available schemas to avoid depending on non-standard exports
+    if (baseOpType === 'groupBy') outputSchemaExpr = 'z.unknown()';
+    else if (baseOpType === 'aggregate') outputSchemaExpr = 'z.unknown()';
+    else if (['createMany', 'updateMany', 'deleteMany', 'count'].includes(baseOpType))
+      outputSchemaExpr = 'z.object({ count: z.number().int().nonnegative() })';
+    else if (baseOpType === 'findMany') outputSchemaExpr = 'z.array(z.unknown())';
+    else outputSchemaExpr = 'z.unknown()';
+  } else if (config.generateOutputValidation && outputType) {
+    outputSchemaExpr = `${outputType}Schema`;
   }
 
   // Build procedure chain
@@ -253,7 +251,7 @@ export function generateProcedureCode(params: {
 
   // Add output validation
   if (config.generateOutputValidation && outputSchemaExpr) {
-    if (config.wrapResponses) {
+    if (config.wrapResponses && config.schemaLibrary === 'zod') {
       const dataSchema = outputSchemaExpr || 'z.unknown()';
       chainParts.push(
         `.output(z.object({ success: z.literal(true), data: ${dataSchema}, meta: z.object({}).passthrough().optional() }))`
