@@ -59,11 +59,13 @@ export class CodeGenerator {
       namedImports: ['os', 'ORPCError', 'onError'],
     });
 
-    // Add zod import for error definitions
-    sourceFile.addImportDeclaration({
-      moduleSpecifier: 'zod',
-      namedImports: ['z'],
-    });
+    // Only add zod import if validation is enabled
+    if (this.config.generateInputValidation || this.config.generateOutputValidation) {
+      sourceFile.addImportDeclaration({
+        moduleSpecifier: 'zod',
+        namedImports: ['z'],
+      });
+    }
 
     // Note: Removed dependency on prisma-error-mapper utility for simpler centralized error handling
 
@@ -254,15 +256,20 @@ export { ${routerName}Procedures };
         const relName = field.name;
         const procedureName = `${modelVar}${this.capitalize(relName)}`;
 
+        // Only use z.object if validation is enabled
+        const inputPart = (this.config.generateInputValidation || this.config.generateOutputValidation)
+          ? `.input(z.object({ id: z.string() }))`
+          : '';
+
         return `  /**
    * ${procedureName} - relation resolver for ${modelName}.${relName}
    */
-  ${procedureName}: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .handler(async (opt: import('@orpc/server').ProcedureHandlerOptions<Context, { id: string }, any, any>) => {
+  ${procedureName}: publicProcedure${inputPart}
+    .handler(async (opt: import('@orpc/server').ProcedureHandlerOptions<Context, ${inputPart ? '{ id: string }' : 'unknown'}, any, any>) => {
       const { input, context } = opt;
-      const related = await context.prisma.${modelVar}.findUnique({ 
-        where: { id: input.id } 
+      const id = ${inputPart ? 'input.id' : '(input as any)?.id'};
+      const related = await context.prisma.${modelVar}.findUnique({
+        where: { id }
       }).${relName}();
       return related;
     })`;
