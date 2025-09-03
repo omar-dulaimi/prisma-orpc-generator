@@ -99,7 +99,7 @@ src/generated/orpc/
 ├─ routers/
 │  ├─ models/           # per-model routers
 │  └─ helpers/          # common utilities
-├─ types/               # shared types
+├─ tests/               # generated tests
 ├─ zod-schemas/         # zod (if enabled)
 └─ documentation/       # docs (if enabled)
 ```
@@ -107,7 +107,7 @@ src/generated/orpc/
 Explore the example outputs:
 - Routers: [examples/basic/src/generated/orpc/routers](examples/basic/src/generated/orpc/routers)
 - Zod schemas: [examples/basic/src/generated/orpc/zod-schemas](examples/basic/src/generated/orpc/zod-schemas)
-- Types/helpers: [examples/basic/src/generated/orpc/types](examples/basic/src/generated/orpc/types)
+- Tests: [examples/basic/src/generated/orpc/tests](examples/basic/src/generated/orpc/tests)
 - Docs: [examples/basic/src/generated/orpc/documentation](examples/basic/src/generated/orpc/documentation)
 
 ---
@@ -200,7 +200,7 @@ generator orpc {
 <a id="zod-schemas-generation"></a>
 ## 🔧 Zod Schemas Generation
 
-This generator leverages [prisma-zod-generator](https://github.com/CarterGrimmeisen/zod-prisma-types) to create Zod schemas from your Prisma models. Here's how the process works:
+This generator leverages [prisma-zod-generator](https://github.com/omar-dulaimi/prisma-zod-generator) to create Zod schemas from your Prisma models. Here's how the process works:
 
 ### Generation Process
 
@@ -293,7 +293,7 @@ What it does
 Notable files
 - Server: [examples/basic/src/server.ts](examples/basic/src/server.ts)
 - Seed: [examples/basic/src/seed.ts](examples/basic/src/seed.ts)
-- Auth: [examples/basic/src/auth.ts](examples/basic/src/auth.ts)
+- Lib utilities: [examples/basic/src/lib](examples/basic/src/lib)
 - Example scripts: [examples/basic/package.json](examples/basic/package.json)
 
 ---
