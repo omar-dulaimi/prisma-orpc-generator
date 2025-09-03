@@ -153,9 +153,9 @@ afterAll(async () => {
 
 describe('E2E CRUD real prisma', () => {
   it('creates, lists, updates and deletes users', async () => {
-    // CREATE
-    const u1 = await caller.user.userCreate({ email: 'alice@example.com', name: 'Alice' });
-    const u2 = await caller.user.userCreate({ email: 'bob@example.com', name: 'Bob' });
+    // CREATE - when validation is disabled, we need to provide the full Prisma structure
+    const u1 = await caller.user.userCreate({ data: { email: 'alice@example.com', name: 'Alice' } });
+    const u2 = await caller.user.userCreate({ data: { email: 'bob@example.com', name: 'Bob' } });
     expect(getId(u1)).toBeTruthy();
     expect(getId(u2)).toBeTruthy();
     // LIST
