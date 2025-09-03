@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator orpc {
+  provider                  = "../../lib/bin.js"
+  output                    = "./generated"
+  schemaLibrary             = "zod"
+  generateOpenApiSpec       = "false"
+  enableSoftDeletes         = "true"
+  generateRelationResolvers = "true"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./behavior.db"
+}
+
+model Author {
+  id        String    @id @default(cuid())
+  name      String
+  posts     Post[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Post {
+  id        String    @id @default(cuid())
+  title     String
+  authorId  String
+  author    Author    @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}

@@ -1,0 +1,5 @@
+{
+  "mode": "full",
+  "output": "src/generated/orpc/zod-schemas",
+  "dateTimeStrategy": "coerce"
+}

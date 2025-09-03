@@ -1,0 +1,40 @@
+# Source files
+src/
+tests/
+examples/
+
+# Development files
+.vscode/
+.github/
+*.test.ts
+*.spec.ts
+
+# Config files
+.eslintrc.js
+.prettierrc
+vitest.config.ts
+vite.config.ts
+tsconfig.json
+
+# Build artifacts
+debug-output/
+temp-generated/
+test-workspaces/
+
+# Development
+node_modules/
+.env
+.env.local
+*.log
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+
+# Other
+coverage/
