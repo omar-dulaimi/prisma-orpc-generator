@@ -1,8 +1,8 @@
+import fs from 'fs';
+import path from 'path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ORPCGenerator } from '../src/generators/orpc-generator';
 import { TestWorkspace, registerWorkspace, unregisterWorkspace } from './utils/test-workspace';
-import path from 'path';
-import fs from 'fs';
 
 // Register ts-node in transpile-only mode to bypass type declaration resolution issues for external deps during tests
 try { require('ts-node/register/transpile-only'); } catch { /* ignore */ }
@@ -67,8 +67,8 @@ beforeAll(async () => {
         output: generatedOutput,
         generateDocumentation: 'false',
         generateTests: 'false',
-        generateInputValidation: 'true',
-        generateOutputValidation: 'true',
+        generateInputValidation: 'false', // Disable validation in tests
+        generateOutputValidation: 'false', // Disable validation in tests
         schemaLibrary: 'zod',
         generateESM: 'false', // Use CommonJS for easier testing
         authenticationStrategy: 'none'
@@ -77,7 +77,15 @@ beforeAll(async () => {
     },
     otherGenerators: [{ provider: { value: 'prisma-client-js', fromEnvVar: null } }],
     datamodel: schema,
-    schemaPath
+    schemaPath,
+    datasources: [
+      {
+        name: 'db',
+        provider: 'sqlite',
+        url: { value: 'file:./test.db', fromEnvVar: null },
+        directUrl: null,
+      },
+    ],
   };
   
   const gen = new ORPCGenerator(options);

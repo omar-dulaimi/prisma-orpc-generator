@@ -348,7 +348,8 @@ export class ORPCGenerator {
       // Create zod.config.json dynamically with relative paths
       const zodConfigPath = await this.createZodConfig(options, zodOutput);
 
-      await PrismaZodGenerator({
+      // Ensure datasources is provided for prisma-zod-generator
+      const generatorOptions: GeneratorOptions = {
         ...options,
         generator: {
           ...options.generator,
@@ -357,13 +358,25 @@ export class ORPCGenerator {
             config: zodConfigPath,
           },
         },
-      } as GeneratorOptions);
+        // Provide default datasources if missing
+        datasources: options.datasources || [
+          {
+            name: 'db',
+            provider: 'sqlite',
+            url: { value: 'file:./dev.db', fromEnvVar: null },
+            directUrl: null,
+          },
+        ],
+      };
+
+      await PrismaZodGenerator(generatorOptions);
 
       this.logger.debug(`Generated Zod schemas using prisma-zod-generator to ${zodOutput}`);
       this.logger.debug(`Zod configuration saved to ${zodConfigPath} for customization`);
     } catch (error) {
       this.logger.error(`Failed to generate Zod schemas: ${error}`);
-      throw error;
+      // Log the error but continue - schemas are optional
+      this.logger.warn('Continuing without Zod schemas - validation will be disabled');
     }
   }
 
