@@ -1,6 +1,6 @@
 {
   "name": "prisma-orpc-generator",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Prisma generator that creates fully-featured ORPC routers",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
