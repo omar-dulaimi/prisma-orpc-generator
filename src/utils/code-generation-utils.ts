@@ -3,7 +3,7 @@ import path from 'path';
 import { SourceFile } from 'ts-morph';
 import { Config } from '../config/schema';
 import { getAvailableAggregations } from './model-utils';
-import { getPrismaMethodName, getValidationRequirements } from './operation-utils';
+import { getPrismaMethodName } from './operation-utils';
 
 // Type interfaces for code generation
 interface CodeGenField {
@@ -169,7 +169,6 @@ export function generateProcedureCode(params: {
   const {
     name,
     operationName,
-    inputType,
     outputType,
     procedureType,
     modelName,
@@ -178,7 +177,6 @@ export function generateProcedureCode(params: {
   } = params;
 
   const procedure = procedureType === 'public' ? 'publicProcedure' : 'protectedProcedure';
-  const inputSchema = inputType ? `${inputType}Schema` : undefined;
   // Build output schema expression for zod
   let outputSchemaExpr: string | undefined = undefined;
   if (config.generateOutputValidation) {
@@ -205,20 +203,7 @@ export function generateProcedureCode(params: {
     chainParts.push(`.route({ method: '${method}', path: '${path}'${statusPart} })`);
   }
 
-  // Detect primary key int id for flexible delete schema
-  const primaryIdField = (params.model?.fields || []).find((f: CodeGenField) => f.isId);
-  const primaryIdIsInt = primaryIdField && ['Int', 'BigInt'].includes(primaryIdField.type);
-
-  // Helper functions for zod schema syntax
-  const getOptionalSyntax = (schemaExpr: string): string => {
-    return `${schemaExpr}.optional()`;
-  };
-
-  const getObjectSyntax = (fields: string): string => {
-    return `z.object({${fields}})`;
-  };
-
-  // Note: Generic any syntax function removed as unused
+  // Note: Primary key detection and helper functions removed as unused
 
   // Map operations to their proper CRUD schemas
   let operationSchema: string | undefined;
