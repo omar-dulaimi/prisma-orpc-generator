@@ -6,7 +6,6 @@
 <p>
   <a href="https://www.npmjs.com/package/prisma-orpc-generator"><img alt="npm" src="https://img.shields.io/npm/v/prisma-orpc-generator?style=flat&label=npm"></a>
   <a href="https://github.com/omar-dulaimi/prisma-orpc-generator/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/omar-dulaimi/prisma-orpc-generator/release.yml?branch=master&label=CI&style=flat"></a>
-  <a href="https://coveralls.io/github/omar-dulaimi/prisma-orpc-generator/"><img alt="coverage" src="https://img.shields.io/coveralls/github/omar-dulaimi/prisma-orpc-generator?style=flat"></a>
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat"></a>
   <a href="#quickstart"><img alt="node" src="https://img.shields.io/badge/node-18.18%2B%20%7C%2020.9%2B%20%7C%2022.11%2B-2ea44f?style=flat"></a>
   <a href="#compatibility"><img alt="prisma" src="https://img.shields.io/badge/prisma-6%2B-2D3748?style=flat"></a>
