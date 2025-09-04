@@ -224,7 +224,7 @@ Shield / Authorization
 | generateShield | boolean (string) | "true" | "true", "false" | Enable shield generation |
 | shieldPath | string | — | — | Path to custom shield file (absolute, relative to project root, relative to output dir, or module specifier) |
 | defaultReadRule | enum | "allow" | "allow", "deny", "auth" | Default rule for read operations |
-| defaultWriteRule | enum | "auth" | "auth", "deny" | Default rule for write operations |
+| defaultWriteRule | enum | "auth" | "auth", "deny", "allow" | Default rule for write operations |
 | denyErrorCode | string | "FORBIDDEN" | — | Error code for denied access |
 | debug | boolean (string) | "false" | "true", "false" | Enable debug logging |
 | allowExternalErrors | boolean (string) | "false" | "true", "false" | Allow detailed error messages from shields |
@@ -560,7 +560,7 @@ const permissions = shield<Context>({
 | generateShield | boolean (string) | "true" | "true", "false" | Enable shield generation |
 | shieldPath | string | — | — | Path to custom shield file (absolute, relative to project root, relative to output dir, or module specifier) |
 | defaultReadRule | enum | "allow" | "allow", "deny", "auth" | Default rule for read operations |
-| defaultWriteRule | enum | "auth" | "auth", "deny" | Default rule for write operations |
+| defaultWriteRule | enum | "auth" | "auth", "deny", "allow" | Default rule for write operations |
 | denyErrorCode | string | "FORBIDDEN" | — | Error code for denied access |
 | debug | boolean (string) | "false" | "true", "false" | Enable debug logging |
 | allowExternalErrors | boolean (string) | "false" | "true", "false" | Allow detailed error messages from shields |
