@@ -19,7 +19,7 @@ describe('Extended Core Feature Procedures (generation smoke)', () => {
     it('no models -> skip', () => expect(true).toBe(true));
     return;
   }
-  const [firstKey, firstRouter]: any = models[0];
+  const [_firstKey, firstRouter]: any = models[0];
   const procKeys = Object.keys(firstRouter._def?.record || {});
 
   it('has stats procedure', () => {

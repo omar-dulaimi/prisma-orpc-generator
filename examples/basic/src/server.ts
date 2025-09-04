@@ -5,15 +5,27 @@ import { CORSPlugin } from '@orpc/server/plugins';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
 import express from 'express';
 import * as errorHandling from './generated/orpc/errorHandling';
+import { authenticateUser, extractTokenFromHeader, generateToken, verifyToken } from './lib/auth';
 import { prisma } from './lib/db';
 
 const app = express();
 const port = process.env.PORT || 3001;
 
 async function createContext(req: express.Request) {
+  const token = extractTokenFromHeader(req.headers.authorization);
+  const userPayload = token ? verifyToken(token) : null;
+  
+  // Convert UserPayload to User type expected by Context
+  const user = userPayload ? {
+    id: userPayload.id,
+    email: userPayload.email,
+    name: userPayload.name,
+    roles: userPayload.roles,
+  } : undefined;
+
   return {
     prisma,
-    user: undefined,
+    user,
     request: {
       headers: req.headers as Record<string, string>,
     },
@@ -47,6 +59,77 @@ const openapi = new OpenAPIHandler(router, {
 // Debug: Log OpenAPI handler info
 console.log('OpenAPI handler created');
 
+// Parse JSON bodies for auth endpoints
+app.use(express.json());
+
+// Add custom auth endpoints before oRPC handler
+app.post('/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await authenticateUser(email, password);
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = generateToken(user);
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        },
+        token,
+      },
+      meta: {
+        authToken: token,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Generate token endpoint for testing
+app.post('/auth/generate-token', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Generate token for testing
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        },
+        token,
+      },
+      meta: {
+        authToken: token,
+        operation: 'generate-token',
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 const handleAPIRequest = async (
   req: express.Request,
   res: express.Response,
@@ -71,7 +154,7 @@ const handleAPIRequest = async (
     );
     if (!matched) return next();
   } catch (e) {
-      console.error(`[API ${id}] error`, e);
+    console.error(`[API ${id}] error`, e);
     // Error handling is now centralized at the base procedure level
     return next(e as any);
   } finally {

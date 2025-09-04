@@ -1,7 +1,7 @@
+import { spawnSync } from 'child_process';
+import crypto from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
-import crypto from 'crypto';
-import { spawnSync } from 'child_process';
 
 /**
  * Creates isolated test workspaces to avoid test collisions
@@ -132,7 +132,7 @@ process.on('exit', () => {
   for (const workspace of activeWorkspaces) {
     try {
       workspace.cleanup();
-    } catch (error) {
+    } catch {
       // Ignore errors during exit cleanup
     }
   }

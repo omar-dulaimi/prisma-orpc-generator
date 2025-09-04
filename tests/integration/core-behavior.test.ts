@@ -20,7 +20,7 @@ describe('Core Behavior (structural)', () => {
     it('skipped - no models', () => expect(true).toBe(true));
     return;
   }
-  const [modelKey, modelRouter]: any = firstEntry;
+  const [_modelKey, modelRouter]: any = firstEntry;
   const procs = modelRouter._def?.record || {};
 
   it('includes soft delete override for delete', () => {

@@ -1,4 +1,5 @@
 import { GeneratorOptions } from '@prisma/generator-helper';
+import fs from 'fs';
 import path from 'path';
 import pluralize from 'pluralize';
 import { SourceFile } from 'ts-morph';
@@ -59,6 +60,14 @@ export class CodeGenerator {
       namedImports: ['os', 'ORPCError', 'onError'],
     });
 
+    // Add shield imports if shield is enabled
+    if (this.config.generateShield) {
+      sourceFile.addImportDeclaration({
+        moduleSpecifier: 'orpc-shield',
+        namedImports: ['rule', 'allow', 'deny', 'shield'],
+      });
+    }
+
     // Only add zod import if validation is enabled
     if (this.config.generateInputValidation || this.config.generateOutputValidation) {
       sourceFile.addImportDeclaration({
@@ -97,12 +106,31 @@ export interface Context {
 }`);
     }
 
-    // Generate clean base oRPC instance (error handling at server level)
-    sourceFile.addStatements(`
+    // Add shield-related types if shield is enabled
+    if (this.config.generateShield) {
+      sourceFile.addStatements(`
 /**
- * Base oRPC router configuration with context
+ * Shield context interface for authorization rules
+ * Used by orpc-shield to evaluate permissions
  */
-export const or = os.$context<Context>();
+export interface ShieldContext {
+  user?: User;
+  prisma: PrismaClient;
+}`);
+    }
+
+    // Generate clean base oRPC instance (error handling at server level)
+    const shieldIntegration = this.config.generateShield && this.config.shieldPath 
+      ? this.generateShieldIntegration()
+      : '';
+
+    sourceFile.addStatements(`${shieldIntegration}
+/**
+ * Base oRPC router configuration with context${this.config.generateShield ? ' and shield middleware' : ''}
+ */
+export const or = ${this.config.generateShield && this.config.shieldPath 
+      ? 'os.$context<Context>().use(permissions);' 
+      : 'os.$context<Context>();'}
 
 /**
  * Base procedure for all operations
@@ -121,6 +149,48 @@ export const protectedProcedure = baseProcedure;
 
 ${this.generateUtilityFunctions()}
 `);
+  }
+
+  private generateShieldIntegration(): string {
+    if (!this.config.generateShield || !this.config.shieldPath) {
+      return '';
+    }
+
+    const shieldModuleSpecifier = this.resolveShieldModuleSpecifierForHelpers();
+    
+    return `
+/**
+ * Import shield permissions
+ */
+import { permissions } from '${shieldModuleSpecifier}';
+`;
+  }
+
+  private resolveShieldModuleSpecifierForHelpers(): string {
+    if (!this.config.shieldPath) {
+      return '../shield';
+    }
+
+    const shieldPath = this.config.shieldPath;
+    const helpersDir = path.resolve(this.outputDir, 'routers', 'helpers');
+    
+    try {
+      // Handle absolute paths
+      if (path.isAbsolute(shieldPath)) {
+        const relativePath = path.relative(helpersDir, shieldPath);
+        return relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
+      }
+
+      // Handle relative paths - resolve from project root (parent of output dir)
+      const projectRoot = path.dirname(this.outputDir);
+      const fullShieldPath = path.resolve(projectRoot, shieldPath);
+      const relativePath = path.relative(helpersDir, fullShieldPath);
+      
+      return relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
+    } catch (error) {
+      this.logger.error(`Failed to resolve shield path for helpers: ${error}`);
+      return '../shield'; // Fallback to default
+    }
   }
 
   private generateUtilityFunctions(): string {
@@ -446,6 +516,15 @@ export { ${routerName}Procedures };
       });
     }
 
+    // Import shield if enabled
+    if (this.config.generateShield) {
+      const shieldModuleSpecifier = this.resolveShieldModuleSpecifier();
+      appRouter.addImportDeclaration({
+        moduleSpecifier: shieldModuleSpecifier,
+        namedImports: ['permissions'],
+      });
+    }
+
     // Generate the main app router
     const routerEntries = models
       .map((model) => {
@@ -454,7 +533,19 @@ export { ${routerName}Procedures };
       })
       .join(',\n');
 
-    appRouter.addStatements(`
+    // Generate router with or without shield
+    const routerContent = this.config.generateShield
+      ? this.generateShieldedAppRouter(routerEntries, models)
+      : this.generateBasicAppRouter(routerEntries, models);
+
+    appRouter.addStatements(routerContent);
+
+    appRouter.formatText({ indentSize: 2 });
+    this.logger.debug('Main application router generated');
+  }
+
+  private generateBasicAppRouter(routerEntries: string, models: PrismaModel[]): string {
+    return `
 /**
  * Main application router combining all model routers
  * Generated with advanced oRPC architecture
@@ -477,10 +568,120 @@ export {${models
         return `${r}Router`;
       })
       .join(', ')}};
-`);
+`;
+  }
 
-    appRouter.formatText({ indentSize: 2 });
-    this.logger.debug('Main application router generated');
+  private resolveShieldModuleSpecifier(): string {
+    if (!this.config.shieldPath) {
+      return '../shield';
+    }
+
+    const shieldPath = this.config.shieldPath;
+    this.logger.debug(`Resolving shield path: ${shieldPath}`);
+
+    try {
+      // First try to resolve as module path (node_modules or scoped package)
+      if (shieldPath.startsWith('@') || shieldPath.includes('/')) {
+        try {
+          const resolved = require.resolve(shieldPath, { paths: [this.outputDir] });
+          this.logger.debug(`Resolved as module: ${resolved}`);
+          return shieldPath;
+        } catch {
+          // Not a module, continue with path resolution
+        }
+      }
+
+      // Handle absolute paths
+      if (path.isAbsolute(shieldPath)) {
+        const relativePath = path.relative(
+          path.resolve(this.outputDir, 'routers'),
+          shieldPath
+        );
+        return relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
+      }
+
+      // Handle relative paths
+      const possiblePaths = [
+        // Path relative to project root
+        path.resolve(path.dirname(this.outputDir), shieldPath),
+        // Path relative to output dir
+        path.resolve(this.outputDir, shieldPath),
+        // Path relative to current working directory
+        path.resolve(process.cwd(), shieldPath)
+      ];
+
+      // Find first existing path
+      for (const possiblePath of possiblePaths) {
+        try {
+          const stats = fs.statSync(possiblePath);
+          if (stats.isFile()) {
+            const relativePath = path.relative(
+              path.resolve(this.outputDir, 'routers'),
+              possiblePath
+            );
+            this.logger.debug(`Resolved path: ${possiblePath} -> ${relativePath}`);
+            return relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
+          }
+        } catch {
+          continue;
+        }
+      }
+
+      // Fallback to treating as module path
+      return shieldPath;
+    } catch (error) {
+      this.logger.error(`Failed to resolve shield path: ${error}`);
+      return '../shield'; // Fallback to default
+    }
+  }
+
+  private generateShieldedAppRouter(routerEntries: string, models: PrismaModel[]): string {
+    const shieldModuleSpecifier = this.resolveShieldModuleSpecifier();
+
+    return `
+/**
+ * Main application router combining all model routers
+ * Generated with advanced oRPC architecture and shield protection
+ */
+const baseAppRouter = {
+${routerEntries}
+};
+
+/**
+ * Shield-protected application router
+ * The shield enforces authorization rules defined in ${this.config.shieldPath ? 'your custom shield file' : 'shield.ts'}
+ * Use this router when you want automatic authorization on all routes
+ */
+export const appRouter = baseAppRouter;
+
+/**
+ * Alternative: Create a shielded router instance
+ * Use this when you need more control over shield application
+ */
+export const createShieldedRouter = () => {
+  return baseAppRouter; // Shield is applied via middleware at server level
+};
+
+/**
+ * Type definition for the complete app router
+ */
+export type AppRouter = typeof appRouter;
+
+/**
+ * Export individual routers for modular usage
+ */
+export {${models
+      .map((m) => {
+        const r = pluralize(m.name.toLowerCase());
+        return `${r}Router`;
+      })
+      .join(', ')}};
+
+/**
+ * Export shield permissions for advanced usage
+ */
+export { permissions } from '${shieldModuleSpecifier}';
+`;
   }
 
   private async generateErrorHandlingModule(): Promise<void> {

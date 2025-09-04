@@ -31,6 +31,11 @@ generator orpc {
   schemaLibrary = "zod"
   generateInputValidation  = "true"
   generateOutputValidation = "true"
+
+  // Shield authorization (optional)
+  generateShield = "true"
+  defaultReadRule = "allow"
+  defaultWriteRule = "auth"
 }
 ```
 
@@ -41,14 +46,35 @@ npx prisma generate
 
 ---
 
+## 📋 Table of Contents
+
+- [⚡ Quickstart](#quickstart) - Get up and running in minutes
+- [🏗️ What Gets Generated](#what-gets-generated) - See what files are created
+- [⚙️ Configuration](#configuration) - All available options
+- [🔧 Zod Schemas Generation](#zod-schemas-generation) - Schema validation setup
+- [🛡️ Shield Authorization](#shield-authorization) - Type-safe permissions and rules
+- [🧪 Examples](#examples) - Working examples to explore
+- [❓ FAQ / Troubleshooting](#faq--troubleshooting) - Common issues and solutions
+- [🧑‍💻 Development](#development-contributing) - Contributing guidelines
+- [🗺️ Roadmap](#roadmap) - Planned features and improvements
+- [📄 License](#license) - Licensing information
+- [🙏 Acknowledgements](#acknowledgements) - Credits and thanks
+- [📝 Changelog](#changelog) - Version history and changes
+
+---
+
 <a id="quickstart"></a>
 ## ⚡ Quickstart
-Prerequisites
+
+<details>
+<summary>Click to expand quickstart guide</summary>
+
+**Prerequisites**
 - Node: 18.18.0+, 20.9.0+, or 22.11.0+
 - Prisma CLI (v6+) in your project
 - TypeScript ≥ 5.1.0 recommended
 
-Install
+**Install**
 ```bash
 # npm
 npm install -D prisma-orpc-generator zod prisma @prisma/client
@@ -71,15 +97,20 @@ generator orpc {
   output   = "./src/generated/orpc"
 }
 ```
-Generate
+**Generate**
 ```bash
 npx prisma generate
 ```
+
+</details>
 
 ---
 
 <a id="compatibility"></a>
 ## 🧩 Compatibility
+
+<details>
+<summary>Click to expand compatibility info</summary>
 - Prisma ORM: v6+
 - Node.js minimums for Prisma v6:
   - 18.18.0+
@@ -88,10 +119,15 @@ npx prisma generate
   - Not supported: 16, 17, 19, 21
 - TypeScript: ≥ 5.1.0
 
+</details>
+
 ---
 
-<a id="what-you-get"></a>
-## 📦 What you get
+<a id="what-gets-generated"></a>
+## 🏗️ What Gets Generated
+
+<details>
+<summary>Click to expand generated files overview</summary>
 A generated surface mirroring your domain:
 
 ```
@@ -110,20 +146,30 @@ Explore the example outputs:
 - Tests: [examples/basic/src/generated/orpc/tests](examples/basic/src/generated/orpc/tests)
 - Docs: [examples/basic/src/generated/orpc/documentation](examples/basic/src/generated/orpc/documentation)
 
+</details>
+
 ---
 
 <a id="usage"></a>
 ## 🛠️ Usage
+
+<details>
+<summary>Click to expand usage guide</summary>
 - Runs as part of Prisma’s generator pipeline.
 - Default output directory is `./src/generated/orpc` (configurable via the generator block).
 - Import the generated code into your server/app. See the runnable example server in [examples/basic/src/server.ts](examples/basic/src/server.ts).
 
 Tip: Browse the example’s generated root for real structure: [examples/basic/src/generated/orpc](examples/basic/src/generated/orpc).
 
+</details>
+
 ---
 
 <a id="configuration"></a>
 ## ⚙️ Configuration
+
+<details>
+<summary>Click to expand configuration options</summary>
 Where configuration lives
 - Inside your generator block in [schema.prisma](examples/basic/schema.prisma)
 - Booleans are strings: "true"/"false"; numbers as strings are supported
@@ -171,6 +217,16 @@ Runtime and integration
 | apiTitle | string | Generated API | — | API title for documentation |
 | apiDescription | string | Auto-generated API from Prisma schema | — | API description for documentation |
 | apiVersion | string | 1.0.0 | — | API version for documentation |
+
+Shield / Authorization
+| Option | Type | Default | Values | Description |
+|---|---|---|---|---|
+| generateShield | boolean (string) | "true" | "true", "false" | Enable shield generation |
+| shieldPath | string | — | — | Path to custom shield file (relative to output dir) |
+| defaultReadRule | enum | "allow" | "allow", "deny", "auth" | Default rule for read operations |
+| defaultWriteRule | enum | "auth" | "auth", "deny", "admin" | Default rule for write operations |
+| denyErrorCode | string | "FORBIDDEN" | — | Error code for denied access |
+| debug | boolean (string) | "false" | "true", "false" | Enable debug logging |
 Notes
 - generateModelActions supports: create, createMany, findFirst, findFirstOrThrow, findMany, findUnique, findUniqueOrThrow, update, updateMany, upsert, delete, deleteMany, aggregate, groupBy, count, findRaw, aggregateRaw.
 - Booleans are strings in Prisma generator config: use "true" or "false".
@@ -195,10 +251,15 @@ generator orpc {
 ```
 </details>
 
+</details>
+
 ---
 
 <a id="zod-schemas-generation"></a>
 ## 🔧 Zod Schemas Generation
+
+<details>
+<summary>Click to expand zod schemas info</summary>
 
 This generator leverages [prisma-zod-generator](https://github.com/omar-dulaimi/prisma-zod-generator) to create Zod schemas from your Prisma models. Here's how the process works:
 
@@ -275,10 +336,240 @@ src/generated/orpc/
 └─ routers/              # oRPC routers (import from ../zod-schemas)
 ```
 
+</details>
+
+---
+
+<a id="shield-authorization"></a>
+## 🛡️ Shield Authorization
+
+<details>
+<summary>Click to expand shield authorization guide</summary>
+
+The generator can automatically generate [orpc-shield](https://github.com/omar-dulaimi/orpc-shield) configurations for type-safe authorization. Shield provides declarative rules, composable operators, and path-based permissions.
+
+### Shield Configuration
+
+Add shield options to your generator config:
+
+```prisma
+generator orpc {
+  provider = "prisma-orpc-generator"
+  output   = "./src/generated/orpc"
+
+  // Enable shield generation
+  generateShield = "true"
+
+  // Option 1: Auto-generate shield rules
+  defaultReadRule  = "allow"  // "allow", "deny", "auth"
+  defaultWriteRule = "auth"   // "auth", "deny", "admin"
+
+  // Option 2: Use custom shield file (relative to output dir)
+  // shieldPath = "../auth/my-custom-shield"
+
+  // Error handling
+  denyErrorCode = "FORBIDDEN"
+  debug = "false"
+}
+```
+
+### What Gets Generated
+
+Shield generation creates:
+
+```
+src/generated/orpc/
+├─ shield.ts              # Shield rules and permissions (auto-generated)
+├─ routers/
+│  ├─ index.ts           # App router with shield exports
+│  └─ helpers/
+│     └─ createRouter.ts # Base router with shield middleware integration
+```
+
+**When `shieldPath` is provided:** The generator skips auto-generation and dynamically integrates your custom shield file into the generated middleware chain.
+
+### Dynamic Shield Path Resolution ✨
+
+The generator now features **smart dynamic path resolution** for shield files. When you specify a `shieldPath`, the generator automatically:
+
+- ✅ **Resolves relative paths** from your project structure
+- ✅ **Handles different output directory layouts** 
+- ✅ **Integrates shield middleware** using the proper oRPC pattern
+- ✅ **Generates correct import paths** regardless of nesting depth
+- ✅ **Applies middleware to all generated procedures** through inheritance
+
+**Example Generated Integration:**
+```typescript
+// In src/generated/orpc/routers/helpers/createRouter.ts
+import { permissions } from '../../../../custom-shield';
+export const or = os.$context<Context>().use(permissions);
+```
+
+### Using Custom Shield Files
+
+For advanced use cases, you can provide your own shield file instead of auto-generation:
+
+```prisma
+generator orpc {
+  provider = "prisma-orpc-generator"
+  output   = "./src/generated/orpc"
+
+  generateShield = "true"
+  shieldPath = "../../src/custom-shield"  // Dynamically resolved!
+}
+```
+
+**Supported Path Formats:**
+- Relative paths: `"../../src/auth/shield"`
+- Project root relative: `"src/auth/shield"`  
+- Absolute paths: `"/absolute/path/to/shield"`
+
+Your custom shield file should export a `permissions` object:
+
+```typescript
+// src/custom-shield.ts
+import { rule, allow, deny, shield, or } from 'orpc-shield';
+import type { Context } from '../generated/orpc/routers/helpers/createRouter';
+
+const isAuthenticated = rule<Context>()(({ ctx }) => !!ctx.user);
+const isAdmin = rule<Context>()(({ ctx }) => ctx.user?.role === 'admin');
+const isOwner = rule<Context>()(({ ctx, input }) => {
+  return ctx.user?.id === (input as any)?.userId;
+});
+
+export const permissions = shield<Context>({
+  user: {
+    userFindMany: allow,           // Match generated procedure names
+    userCreate: isAuthenticated,   
+    userUpdate: isAuthenticated,
+    userDelete: or(isAdmin, isOwner),
+    userDeleteMany: deny,          // Explicitly deny dangerous operations
+  },
+  post: {
+    postFindMany: allow,
+    postCreate: isAuthenticated,
+    postUpdate: isAuthenticated,
+    postDelete: isAuthenticated,
+  },
+}, {
+  denyErrorCode: 'FORBIDDEN',      // Maps to HTTP 403
+  debug: true,                     // Enable debug logging
+  allowExternalErrors: true,       // Allow detailed error messages
+});
+```
+
+**Important:** Shield procedure names should match your generated router names (e.g., `userCreate`, `postFindMany`).
+
+**Note:** When using `shieldPath`, the generator will skip auto-generation and use your custom shield file instead.
+
+### Generated Shield Rules
+
+The generator creates rules based on your Prisma models:
+
+```typescript
+// Built-in rules
+const isAuthenticated = rule<Context>()(({ ctx }) => !!ctx.user);
+const isAdmin = rule<Context>()(({ ctx }) => ctx.user?.role === 'admin');
+
+// Model-specific rules
+const canReadUser = allow;           // Read operations: allow
+const canWriteUser = isAuthenticated; // Write operations: require auth
+
+// Shield configuration
+export const permissions = shield<Context>({
+  user: {
+    list: canReadUser,
+    findById: canReadUser,
+    create: canWriteUser,
+    update: canWriteUser,
+    delete: canWriteUser,
+  },
+  post: {
+    list: allow,
+    create: isAuthenticated,
+    update: isAuthenticated,
+  },
+});
+```
+
+### Using Shield in Your Server
+
+Import and use the generated shield:
+
+```typescript
+import { appRouter, permissions } from './generated/orpc/routers';
+
+// Apply shield at server level
+const server = createServer(appRouter, {
+  // Shield is applied via middleware
+  middleware: [permissions]
+});
+
+// Or use with oRPC handlers
+import { OpenAPIHandler } from '@orpc/openapi';
+
+const handler = new OpenAPIHandler(appRouter, {
+  // Shield permissions are automatically applied
+  interceptors: [/* your interceptors */]
+});
+```
+
+### Context Requirements
+
+Shield rules expect a `Context` with user information:
+
+```typescript
+interface Context {
+  prisma: PrismaClient;
+  user?: {
+    id: string;
+    email?: string;
+    name?: string;
+    roles?: string[];
+    permissions?: string[];
+  };
+}
+```
+
+### Customization
+
+Override default rules by modifying the generated `shield.ts`:
+
+```typescript
+// Custom rule for post ownership
+const isPostOwner = rule<Context>()(({ ctx, input }) => {
+  return ctx.user?.id === (input as any)?.authorId;
+});
+
+// Use in shield config
+const permissions = shield<Context>({
+  post: {
+    update: and(isAuthenticated, isPostOwner), // Auth + ownership
+    delete: or(isAdmin, isPostOwner),          // Admin or owner
+  },
+});
+```
+
+### Shield Options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `generateShield` | boolean | `"true"` | Enable shield generation |
+| `shieldPath` | string | — | Path to custom shield file with dynamic resolution |
+| `defaultReadRule` | enum | `"allow"` | Default rule for read operations |
+| `defaultWriteRule` | enum | `"auth"` | Default rule for write operations |
+| `denyErrorCode` | string | `"FORBIDDEN"` | Error code for denied access |
+| `debug` | boolean | `"false"` | Enable debug logging |
+
+</details>
+
 ---
 
 <a id="examples"></a>
 ## 🧪 Examples
+
+<details>
+<summary>Click to expand examples</summary>
 Run the repo example end-to-end
 ```bash
 npm run example:basic
@@ -296,10 +587,15 @@ Notable files
 - Lib utilities: [examples/basic/src/lib](examples/basic/src/lib)
 - Example scripts: [examples/basic/package.json](examples/basic/package.json)
 
+</details>
+
 ---
 
 <a id="faq--troubleshooting"></a>
 ## ❓ FAQ / Troubleshooting
+
+<details>
+<summary>Click to expand FAQ and troubleshooting</summary>
 Prisma version mismatch
 - Symptom: generator fails or types not aligned
 - Action: ensure Prisma v6+ in dev deps and runtime
@@ -322,10 +618,20 @@ Docs not emitted
 - Symptom: documentation folder missing
 - Action: set `generateDocumentation = "true"` and inspect [src/generators/documentation-generator.ts](src/generators/documentation-generator.ts)
 
+Shield path resolution errors
+- Symptom: "Cannot find module" errors for shield imports
+- Action: verify `shieldPath` points to correct file; check file exports `permissions` object; ensure path is relative to project root or absolute
+- Note: generator now handles dynamic path resolution automatically for common directory structures
+
+</details>
+
 ---
 
 <a id="development-contributing"></a>
 ## 🧑‍💻 Development (Contributing)
+
+<details>
+<summary>Click to expand development guide</summary>
 Repo quicklinks
 - Source: [src/](src)
 - Generators: [src/generators/](src/generators)
@@ -364,16 +670,23 @@ Conventions
 - Ensure `npm run build` and `npm run typecheck` pass before PR
 - Update [README.md](README.md) if flags/outputs change
 
+</details>
+
 ---
 
 <a id="roadmap"></a>
 ## 🗺️ Roadmap
+
+- ✅ **Integration with oRPC Shield** - Built-in authorization with dynamic path resolution
+- **Schema-based Auth Configuration** - Define authorization rules directly in Prisma schema, JSON, or TypeScript config files
 - Plugin hooks for custom emitters
 - Config discovery and overrides
 
 ---
 
 <a id="license"></a>
+## 📄 License
+
 - License: MIT — see the `LICENSE` file.
 - Copyright © 2025 Omar Dulaimi.
 
@@ -381,16 +694,16 @@ Conventions
 
 <a id="acknowledgements"></a>
 ## 🙏 Acknowledgements
+
 - Prisma and its ecosystem
 - oRPC community and patterns
 - Zod for runtime validation
 - TypeScript tooling
 - Vitest and contributors
 
----
-
 <a id="changelog"></a>
 ## 📝 Changelog
+
 See [CHANGELOG.md](CHANGELOG.md)
 
 ---

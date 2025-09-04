@@ -72,6 +72,7 @@
     "chalk": "^4.1.2",
     "commander": "^11.1.0",
     "dataloader": "^2.2.3",
+    "orpc-shield": "^1.0.0",
     "pluralize": "^8.0.0",
     "prettier": "^3.6.2",
     "prisma-zod-generator": "^1.18.0",
@@ -107,5 +108,6 @@
   "peerDependencies": {
     "@prisma/client": ">=6.0.0",
     "prisma": ">=6.0.0"
-  }
+  },
+  "packageManager": "pnpm@9.0.0"
 }
