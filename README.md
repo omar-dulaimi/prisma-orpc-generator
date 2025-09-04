@@ -363,7 +363,7 @@ generator orpc {
 
   // Option 1: Auto-generate shield rules
   defaultReadRule  = "allow"  // "allow", "deny", "auth"
-  defaultWriteRule = "auth"   // "auth", "deny", "admin"
+  defaultWriteRule = "auth"   // "auth", "deny"
 
   // Option 2: Use custom shield file (relative to output dir)
   // shieldPath = "../auth/my-custom-shield"

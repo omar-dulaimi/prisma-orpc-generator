@@ -103,19 +103,27 @@ const isAuthenticated = rule<Context>()(({ ctx }) => !!ctx.user);`);
   private generateRulesForModel(model: PrismaModel): string {
     const rules: string[] = [];
 
-    // Read operations rule
+    // Read operations rule - explicit handling with secure default
     if (this.config.defaultReadRule === 'auth') {
       rules.push(`const canRead${model.name} = isAuthenticated;`);
     } else if (this.config.defaultReadRule === 'deny') {
       rules.push(`const canRead${model.name} = deny;`);
-    } else {
+    } else if (this.config.defaultReadRule === 'allow') {
       rules.push(`const canRead${model.name} = allow;`);
+    } else {
+      // Secure default for unrecognized values
+      rules.push(`const canRead${model.name} = deny;`);
     }
 
-    // Write operations rule - only allow auth or deny, no admin assumptions
+    // Write operations rule - explicit handling with secure default
     if (this.config.defaultWriteRule === 'auth') {
       rules.push(`const canWrite${model.name} = isAuthenticated;`);
+    } else if (this.config.defaultWriteRule === 'deny') {
+      rules.push(`const canWrite${model.name} = deny;`);
+    } else if (this.config.defaultWriteRule === 'allow') {
+      rules.push(`const canWrite${model.name} = allow;`);
     } else {
+      // Secure default for unrecognized values
       rules.push(`const canWrite${model.name} = deny;`);
     }
 
