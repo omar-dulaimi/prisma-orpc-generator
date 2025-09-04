@@ -468,11 +468,13 @@ export const permissions = shield<Context>({
 The generator creates rules based on your Prisma models:
 
 ```typescript
-// Built-in rules
+// Built-in rules (generated automatically)
 const isAuthenticated = rule<Context>()(({ ctx }) => !!ctx.user);
+
+// Example custom rules (user-defined)
 const isAdmin = rule<Context>()(({ ctx }) => ctx.user?.role === 'admin');
 
-// Model-specific rules
+// Model-specific rules (generated based on config)
 const canReadUser = allow;           // Read operations: allow
 const canWriteUser = isAuthenticated; // Write operations: require auth
 
