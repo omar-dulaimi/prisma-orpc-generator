@@ -158,8 +158,12 @@ export type Permissions = typeof permissions;
 `;
   }
 
+  private toLowerCamelCase(name: string): string {
+    return name ? name.charAt(0).toLowerCase() + name.slice(1) : name;
+  }
+
   private generateModelShieldConfig(model: PrismaModel): string {
-    const modelName = model.name.toLowerCase();
+    const modelName = this.toLowerCamelCase(model.name);
     const operations: string[] = [];
 
     // Map Prisma operations to shield rules
