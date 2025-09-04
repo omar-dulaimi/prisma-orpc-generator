@@ -1,7 +1,7 @@
 <div align="center">
 
-<h1>⚡ Prisma ORPC Generator</h1>
-<p><strong>Generate typed ORPC routers, Zod schemas, and docs straight from your Prisma schema.</strong></p>
+<h1>⚡ Prisma oRPC Generator</h1>
+<p><strong>Generate typed oRPC routers, Zod schemas, and docs straight from your Prisma schema.</strong></p>
 
 <p>
   <a href="https://www.npmjs.com/package/prisma-orpc-generator"><img alt="npm" src="https://img.shields.io/npm/v/prisma-orpc-generator?style=flat&label=npm"></a>
@@ -133,7 +133,7 @@ Validated against [src/config/schema.ts](src/config/schema.ts). Below are the mo
 Core options
 | Option | Type | Default | Values | Description |
 |---|---|---|---|---|
-| output | string | ./src/generated/orpc | — | Directory for generated ORPC artifacts |
+| output | string | ./src/generated/orpc | — | Directory for generated oRPC artifacts |
 | schemaLibrary | enum | "zod" | zod | Schema validation library |
 | generateInputValidation | boolean (string) | "true" | "true", "false" | Emit Zod validation for inputs |
 | generateOutputValidation | boolean (string) | "true" | "true", "false" | Emit Zod validation for outputs |
@@ -205,9 +205,9 @@ This generator leverages [prisma-zod-generator](https://github.com/omar-dulaimi/
 ### Generation Process
 
 1. **Automatic Integration**: When `schemaLibrary = "zod"` is set, the generator automatically calls `prisma-zod-generator` 
-2. **Configuration Management**: Creates a `zod.config.json` file with optimized settings for ORPC usage
+2. **Configuration Management**: Creates a `zod.config.json` file with optimized settings for oRPC usage
 3. **Schema Output**: Generates Zod schemas in the `zod-schemas/` subdirectory of your output path
-4. **Import Integration**: Generated ORPC routers automatically import and use these schemas for validation
+4. **Import Integration**: Generated oRPC routers automatically import and use these schemas for validation
 
 ### Configuration File
 
@@ -255,7 +255,7 @@ generator orpc {
 
 When `zodConfigPath` is specified:
 - The generator uses your existing configuration
-- ORPC-specific settings are passed as generator options instead of modifying the config file
+- oRPC-specific settings are passed as generator options instead of modifying the config file
 - Your custom configuration takes precedence
 
 ### File Structure
@@ -272,7 +272,7 @@ src/generated/orpc/
 │  └─ inputTypeSchemas/  # Input validation schemas
 │     ├─ UserCreateInput.ts
 │     └─ UserUpdateInput.ts
-└─ routers/              # ORPC routers (import from ../zod-schemas)
+└─ routers/              # oRPC routers (import from ../zod-schemas)
 ```
 
 ---
@@ -382,7 +382,7 @@ Conventions
 <a id="acknowledgements"></a>
 ## 🙏 Acknowledgements
 - Prisma and its ecosystem
-- ORPC community and patterns
+- oRPC community and patterns
 - Zod for runtime validation
 - TypeScript tooling
 - Vitest and contributors

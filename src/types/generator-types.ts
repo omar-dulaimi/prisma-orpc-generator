@@ -1,5 +1,5 @@
 /**
- * Type definitions for the ORPC generator
+ * Type definitions for the oRPC generator
  * Replaces generic types with proper TypeScript interfaces
  */
 

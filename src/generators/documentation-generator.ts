@@ -53,7 +53,7 @@ export class DocumentationGenerator {
 
 ${this.config.apiDescription}
 
-This API was automatically generated from your Prisma schema using **prisma-orpc-generator** - a feature-rich code generator for ORPC.
+This API was automatically generated from your Prisma schema using **prisma-orpc-generator** - a feature-rich code generator for oRPC.
 
 ## 🚀 Quick Start
 
@@ -62,7 +62,7 @@ This API was automatically generated from your Prisma schema using **prisma-orpc
 Make sure your API server is running (refer to your main project's README for server setup instructions).
 
 ### 2. Explore the API
-- Use the generated ORPC router to interact with your API endpoints.
+- Use the generated oRPC router to interact with your API endpoints.
 
 ## 📁 Generated Files Overview
 
@@ -74,7 +74,7 @@ This documentation folder contains everything you need to work with your generat
 
 ## ✨ Features
 
-This is a simple ORPC API generated from your Prisma schema.
+This is a simple oRPC API generated from your Prisma schema.
 
 
 ## 📊 Data Models
@@ -102,13 +102,13 @@ ${model.documentation ? `${model.documentation}` : `Manage ${model.name} records
 
 ## 💻 Usage Examples
 
-### Using ORPC Protocol
+### Using oRPC Protocol
 
 \`\`\`typescript
 import { router } from './generated/orpc/router';
 
 // Example server usage - router is already generated with your endpoints
-// Connect your ORPC router to your server framework of choice
+// Connect your oRPC router to your server framework of choice
 
 ${
   models.length > 0
@@ -132,7 +132,7 @@ ${this.generateSecurityDocumentation()}
 
 ## 📡 API Protocol
 
-This API uses ORPC protocol, which provides:
+This API uses oRPC protocol, which provides:
 - Type-safe remote procedure calls
 - Automatic serialization/deserialization
 - Built-in error handling
@@ -156,11 +156,11 @@ The \`api-reference.md\` file contains detailed documentation for all endpoints,
 - Parameter descriptions
 
 ### API Interaction
-Use the generated ORPC router and procedures to interact with your API endpoints.
+Use the generated oRPC router and procedures to interact with your API endpoints.
 
 ## 📚 Additional Resources
 
-- [ORPC Documentation](https://orpc.unnoq.com/) - Learn about ORPC protocol
+- [oRPC Documentation](https://orpc.unnoq.com/) - Learn about oRPC protocol
 - [Prisma Documentation](https://www.prisma.io/docs) - Database toolkit documentation
 - [API Reference](./api-reference.md) - Detailed endpoint documentation
 
@@ -216,7 +216,7 @@ ${model.fields
 
 ## Error Handling
 
-All errors follow the standard ORPC error format:
+All errors follow the standard oRPC error format:
 
 \`\`\`json
 {

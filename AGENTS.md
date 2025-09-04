@@ -1,10 +1,10 @@
 # Repository Guidelines
 
-This project is a TypeScript code generator for ORPC built around Prisma. Use Node.js 18+.
+This project is a TypeScript code generator for oRPC built around Prisma. Use Node.js 18+.
 
 ## Project Structure & Module Organization
 - `src/`: source code.
-  - `generators/`: ORPC code generation logic.
+  - `generators/`: oRPC code generation logic.
   - `utils/`, `types/`, `config/`: shared helpers, type defs, config schema.
   - `bin.ts`, `index.ts`: CLI entry and public exports.
 - `tests/`: Vitest suites (`unit/`, `integration/`, `e2e-crud.test.ts`).

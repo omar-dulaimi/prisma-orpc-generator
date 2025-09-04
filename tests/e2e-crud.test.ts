@@ -60,7 +60,7 @@ beforeAll(async () => {
   const { PrismaClient } = require('@prisma/client');
   prisma = new PrismaClient();
   
-  // Run ORPC generator
+  // Run oRPC generator
   const options: any = {
     generator: {
       config: {

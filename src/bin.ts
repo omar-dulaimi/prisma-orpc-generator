@@ -34,7 +34,7 @@ generatorHandler({
     return {
       version: '0.0.1',
       defaultOutput: './src/generated/orpc',
-      prettyName: 'Prisma ORPC Generator',
+      prettyName: 'Prisma oRPC Generator',
       requiresGenerators: ['prisma-client-js'],
     };
   },

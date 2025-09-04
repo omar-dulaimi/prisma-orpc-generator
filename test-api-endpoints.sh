@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Comprehensive API Endpoint Testing Script for ORPC Blog API
+# Comprehensive API Endpoint Testing Script for oRPC Blog API
 # Tests all User and Post endpoints on http://localhost:3001
 # Usage: ./test-api-endpoints.sh
 

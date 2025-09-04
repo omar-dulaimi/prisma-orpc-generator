@@ -200,7 +200,7 @@ export class ProjectManager {
     const packageJson: PackageJsonLike = {
       name: '@generated/orpc-api',
       version: '1.0.0',
-      description: 'Generated ORPC API from Prisma schema',
+      description: 'Generated oRPC API from Prisma schema',
       main: './routers/index.js',
       exports: {
         '.': {

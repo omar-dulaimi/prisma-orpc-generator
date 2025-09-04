@@ -1,9 +1,9 @@
 /**
  * prisma-orpc-generator
- * Prisma generator for ORPC with advanced features
+ * Prisma generator for oRPC with advanced features
  *
  * This is the main entry point for the generator that creates
- * fully-featured ORPC routers from Prisma schemas with:
+ * fully-featured oRPC routers from Prisma schemas with:
  * - Multi-runtime compatibility
  * - Advanced middleware system
  * - Strong type safety
@@ -52,14 +52,14 @@ export const GENERATOR_NAME = 'prisma-orpc-generator';
 export const GENERATOR_METADATA = {
   name: GENERATOR_NAME,
   version: VERSION,
-  description: 'Prisma generator for ORPC with advanced features',
+  description: 'Prisma generator for oRPC with advanced features',
   author: 'Advanced Code Generation Team',
   repository: 'https://github.com/omar-dulaimi/prisma-orpc-generator',
   homepage: 'https://prisma-orpc-generator.dev',
   bugs: 'https://github.com/omar-dulaimi/prisma-orpc-generator/issues',
   keywords: ['prisma', 'orpc', 'generator', 'typescript', 'api', 'rpc', 'type-safe', 'codegen'],
   capabilities: [
-    'Advanced ORPC router generation',
+    'Advanced oRPC router generation',
     'Zod schema validation with full type safety',
     'Comprehensive middleware system',
     'Interactive documentation',
@@ -156,7 +156,7 @@ export function displayInfo(): void {
   console.log(`
 ╔════════════════════════════════════════════════════════════════════╗
 ║                   ${GENERATOR_METADATA.name}                       ║
-║                    Prisma ORPC Generator                           ║
+║                    Prisma oRPC Generator                           ║
 ╠════════════════════════════════════════════════════════════════════╣
 ║ Version: ${GENERATOR_METADATA.version}                             ║
 ║ Description: ${GENERATOR_METADATA.description.substring(0, 36)}... ║

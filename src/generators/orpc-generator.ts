@@ -158,8 +158,8 @@ export class ORPCGenerator {
   }
 
   private startGeneration(): void {
-    this.spinner.start(chalk.blue('🚀 Generating ORPC routers...'));
-    this.logger.info('Starting ORPC generation with configuration:', this.config);
+    this.spinner.start(chalk.blue('🚀 Generating oRPC routers...'));
+    this.logger.info('Starting oRPC generation with configuration:', this.config);
   }
 
   private async setupOutputDirectory(): Promise<void> {
@@ -209,7 +209,7 @@ export class ORPCGenerator {
 
     if (!prismaClientProvider) {
       throw new Error(
-        'ORPC Generator requires a Prisma Client generator. Please add the following to your schema:\n\n' +
+        'oRPC Generator requires a Prisma Client generator. Please add the following to your schema:\n\n' +
           'generator client {\n' +
           '  provider = "prisma-client-js"\n' +
           '}'
@@ -259,7 +259,7 @@ export class ORPCGenerator {
   }
 
   private async generateCoreFiles(models: PrismaModel[], dmmf: DMMF.Document): Promise<void> {
-    this.spinner.text = 'Generating core ORPC files...';
+    this.spinner.text = 'Generating core oRPC files...';
 
     const codeGenerator = new CodeGenerator(
       this.config,
@@ -417,7 +417,7 @@ export class ORPCGenerator {
       output: zodOutput,
     };
 
-    // Add ORPC-managed settings only if they differ from defaults or are explicitly set
+    // Add oRPC-managed settings only if they differ from defaults or are explicitly set
     const zodConfigWithORPCSettings = {
       ...minimalZodConfig,
       // Only add dateTimeStrategy if it's not the default
@@ -426,7 +426,7 @@ export class ORPCGenerator {
         : {}),
     };
 
-    // Use minimal config if no ORPC overrides, otherwise use the merged config
+    // Use minimal config if no oRPC overrides, otherwise use the merged config
     const finalZodConfig =
       this.config.zodDateTimeStrategy !== 'coerce' ? zodConfigWithORPCSettings : minimalZodConfig;
 
@@ -472,7 +472,7 @@ export class ORPCGenerator {
   }
 
   private completeGeneration(): void {
-    this.spinner.succeed(chalk.green('✅ ORPC routers generated successfully!'));
+    this.spinner.succeed(chalk.green('✅ oRPC routers generated successfully!'));
 
     // Display generation summary
     this.displayGenerationSummary();
@@ -501,7 +501,7 @@ export class ORPCGenerator {
     }
 
     this.logger.info(chalk.gray('─'.repeat(50)));
-    this.logger.info(chalk.green('🚀 Your ORPC API is ready to use!\n'));
+    this.logger.info(chalk.green('🚀 Your oRPC API is ready to use!\n'));
   }
 
   // Plugin system methods (basic implementation)

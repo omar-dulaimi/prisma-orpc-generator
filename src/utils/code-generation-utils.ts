@@ -24,10 +24,10 @@ interface CodeGenModel {
 }
 
 /**
- * Generate ORPC imports for a source file
+ * Generate oRPC imports for a source file
  */
 export function generateORPCImports(sourceFile: SourceFile): void {
-  // Core ORPC imports for v1.7.10
+  // Core oRPC imports for v1.7.10
   const existing = sourceFile
     .getImportDeclarations()
     .find((d) => d.getModuleSpecifierValue() === '@orpc/server');
@@ -275,7 +275,7 @@ export function generateProcedureCode(params: {
 
   return `  /**
    * ${name} - ${baseOpType} operation for ${modelName}
-  * Generated with advanced ORPC features${params.extraDescription ? `\n   * ${params.extraDescription}` : ''}
+  * Generated with advanced oRPC features${params.extraDescription ? `\n   * ${params.extraDescription}` : ''}
    */
   ${name}: ${chainParts.join('\n    ')}`;
 }

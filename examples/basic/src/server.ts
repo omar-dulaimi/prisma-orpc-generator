@@ -35,7 +35,7 @@ const openapi = new OpenAPIHandler(router, {
       schemaConverters: [new ZodToJsonSchemaConverter()],
       specGenerateOptions: {
         info: {
-          title: 'ORPC Playground',
+          title: 'oRPC Playground',
           version: '1.0.0',
         },
       },
