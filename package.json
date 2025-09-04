@@ -56,7 +56,7 @@
   },
   "homepage": "https://github.com/omar-dulaimi/prisma-orpc-generator#readme",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.18.0"
   },
   "files": [
     "lib/**/*",
@@ -80,23 +80,24 @@
   },
   "devDependencies": {
     "@prisma/client": "^6.15.0",
-    "@types/node": "^24.3.0",
-    "@types/pluralize": "^0.0.33",
-    "@typescript-eslint/eslint-plugin": "^8.41.0",
-    "@typescript-eslint/parser": "^8.41.0",
-    "@vitest/ui": "^3.2.4",
-    "eslint": "^9.34.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "prisma": "^6.15.0",
-    "semantic-release": "^24.2.7",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^11.0.4",
     "@semantic-release/npm": "^12.0.2",
     "@semantic-release/release-notes-generator": "^14.0.3",
+    "@types/node": "^24.3.0",
+    "@types/pluralize": "^0.0.33",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "@vitest/ui": "^3.2.4",
     "conventional-changelog-conventionalcommits": "^9.1.0",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "orpc-shield": "^0.1.3",
+    "prisma": "^6.15.0",
+    "semantic-release": "^24.2.7",
     "ts-node": "^10.9.2",
     "typedoc": "^0.28.12",
     "typescript": "^5.9.2",
@@ -106,6 +107,13 @@
   },
   "peerDependencies": {
     "@prisma/client": ">=6.0.0",
+    "orpc-shield": ">=0.1.3",
     "prisma": ">=6.0.0"
-  }
+  },
+  "peerDependenciesMeta": {
+    "orpc-shield": {
+      "optional": true
+    }
+  },
+  "packageManager": "pnpm@9.0.0"
 }

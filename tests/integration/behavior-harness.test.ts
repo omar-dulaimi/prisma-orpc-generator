@@ -10,7 +10,6 @@ async function generate() {
 
 beforeAll(async () => {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { PrismaClient } = require('./node_modules/@prisma/client');
     prisma = new PrismaClient();
   } catch {

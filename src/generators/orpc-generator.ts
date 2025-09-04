@@ -18,6 +18,7 @@ import {
 import { ProjectManager } from '../utils/project-manager';
 import { CodeGenerator } from './code-generator';
 import { DocumentationGenerator } from './documentation-generator';
+import { ShieldGenerator } from './shield-generator';
 import { TestGenerator } from './test-generator';
 
 // Minimal spinner to avoid ESM-only ora at runtime in CJS output
@@ -279,6 +280,17 @@ export class ORPCGenerator {
 
     // Generate main app router
     await codeGenerator.generateAppRouter(models);
+
+    // Generate shield rules if enabled
+    if (this.isEnabled(this.config.generateShield)) {
+      const shieldGenerator = new ShieldGenerator(
+        this.config,
+        this.outputDir,
+        this.projectManager,
+        this.logger
+      );
+      await shieldGenerator.generateShield(models);
+    }
 
     this.logger.debug('Core files generation completed');
   }

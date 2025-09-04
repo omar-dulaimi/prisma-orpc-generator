@@ -111,6 +111,15 @@ export const configSchema = z.object({
 
   // Compatibility
   prismaClientPath: z.string().default('@prisma/client'),
+
+  // Shield / Authorization configuration
+  generateShield: configBoolean.default('true'),
+  shieldPath: z.string().optional(), // Path to custom shield file (absolute, relative to project root, relative to output dir, or module specifier)
+  defaultReadRule: z.enum(['allow', 'deny', 'auth']).default('allow'),
+  defaultWriteRule: z.enum(['auth', 'deny', 'allow']).default('auth'),
+  denyErrorCode: z.string().default('FORBIDDEN'),
+  debug: configBoolean.default('false'),
+  allowExternalErrors: configBoolean.default('false'),
 });
 
 export type Config = z.infer<typeof configSchema>;
