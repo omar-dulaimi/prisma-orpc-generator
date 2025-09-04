@@ -222,11 +222,12 @@ Shield / Authorization
 | Option | Type | Default | Values | Description |
 |---|---|---|---|---|
 | generateShield | boolean (string) | "true" | "true", "false" | Enable shield generation |
-| shieldPath | string | — | — | Path to custom shield file (relative to output dir) |
+| shieldPath | string | — | — | Path to custom shield file (absolute, relative to project root, relative to output dir, or module specifier) |
 | defaultReadRule | enum | "allow" | "allow", "deny", "auth" | Default rule for read operations |
-| defaultWriteRule | enum | "auth" | "auth", "deny", "admin" | Default rule for write operations |
+| defaultWriteRule | enum | "auth" | "auth", "deny" | Default rule for write operations |
 | denyErrorCode | string | "FORBIDDEN" | — | Error code for denied access |
 | debug | boolean (string) | "false" | "true", "false" | Enable debug logging |
+| allowExternalErrors | boolean (string) | "false" | "true", "false" | Allow detailed error messages from shields |
 Notes
 - generateModelActions supports: create, createMany, findFirst, findFirstOrThrow, findMany, findUnique, findUniqueOrThrow, update, updateMany, upsert, delete, deleteMany, aggregate, groupBy, count, findRaw, aggregateRaw.
 - Booleans are strings in Prisma generator config: use "true" or "false".
@@ -552,14 +553,15 @@ const permissions = shield<Context>({
 
 ### Shield Options
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `generateShield` | boolean | `"true"` | Enable shield generation |
-| `shieldPath` | string | — | Path to custom shield file with dynamic resolution |
-| `defaultReadRule` | enum | `"allow"` | Default rule for read operations |
-| `defaultWriteRule` | enum | `"auth"` | Default rule for write operations |
-| `denyErrorCode` | string | `"FORBIDDEN"` | Error code for denied access |
-| `debug` | boolean | `"false"` | Enable debug logging |
+| Option | Type | Default | Values | Description |
+|---|---|---|---|---|
+| generateShield | boolean (string) | "true" | "true", "false" | Enable shield generation |
+| shieldPath | string | — | — | Path to custom shield file (absolute, relative to project root, relative to output dir, or module specifier) |
+| defaultReadRule | enum | "allow" | "allow", "deny", "auth" | Default rule for read operations |
+| defaultWriteRule | enum | "auth" | "auth", "deny" | Default rule for write operations |
+| denyErrorCode | string | "FORBIDDEN" | — | Error code for denied access |
+| debug | boolean (string) | "false" | "true", "false" | Enable debug logging |
+| allowExternalErrors | boolean (string) | "false" | "true", "false" | Allow detailed error messages from shields |
 
 </details>
 

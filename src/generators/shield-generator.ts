@@ -26,18 +26,23 @@ export class ShieldGenerator {
       return;
     }
 
-    this.logger.debug('Generating oRPC Shield rules...');
+    try {
+      this.logger.debug('Generating oRPC Shield rules...');
 
-    const shieldFile = this.projectManager.createSourceFile(
-      path.resolve(this.outputDir, 'shield.ts'),
-      undefined,
-      { overwrite: true }
-    );
+      const shieldFile = this.projectManager.createSourceFile(
+        path.resolve(this.outputDir, 'shield.ts'),
+        undefined,
+        { overwrite: true }
+      );
 
-    await this.generateShieldContent(shieldFile, models);
+      await this.generateShieldContent(shieldFile, models);
 
-    shieldFile.formatText({ indentSize: 2 });
-    this.logger.debug('Shield rules generated successfully');
+      shieldFile.formatText({ indentSize: 2 });
+      this.logger.debug('Shield rules generated successfully');
+    } catch (error) {
+      this.logger.error(`Failed to generate shield file: ${error instanceof Error ? error.message : error}`);
+      throw error;
+    }
   }
 
   private async generateShieldContent(
@@ -72,27 +77,12 @@ export class ShieldGenerator {
   private generateBuiltInRules(): string {
     const rules: string[] = [];
 
-    // Authentication rule
+    // Only include basic authentication rule - no assumptions about user data structure
     rules.push(`/**
  * Rule that requires user authentication
+ * This is the only built-in rule - customize others based on your app's needs
  */
 const isAuthenticated = rule<Context>()(({ ctx }) => !!ctx.user);`);
-
-    // Admin rule
-    rules.push(`/**
- * Rule that requires admin role
- */
-const isAdmin = rule<Context>()(({ ctx }) => ctx.user?.role === 'admin');`);
-
-    // Owner rule (for resources owned by the user)
-    rules.push(`/**
- * Rule that checks if user owns the resource
- * Note: This is a template - customize based on your ownership logic
- */
-const isOwner = rule<Context>()(({ ctx, input }) => {
-  // Default implementation - override in custom rules
-  return ctx.user?.id === (input as any)?.userId || ctx.user?.id === (input as any)?.authorId;
-});`);
 
     return rules.join('\n\n');
   }
@@ -111,12 +101,7 @@ const isOwner = rule<Context>()(({ ctx, input }) => {
   }
 
   private generateRulesForModel(model: PrismaModel): string {
-    const _modelName = model.name.toLowerCase();
     const rules: string[] = [];
-
-    // Generate operation-specific rules based on config
-    const _readOperations = ['findMany', 'findUnique', 'findFirst', 'count'];
-    const _writeOperations = ['create', 'createMany', 'update', 'updateMany', 'upsert', 'delete', 'deleteMany'];
 
     // Read operations rule
     if (this.config.defaultReadRule === 'auth') {
@@ -127,22 +112,12 @@ const isOwner = rule<Context>()(({ ctx, input }) => {
       rules.push(`const canRead${model.name} = allow;`);
     }
 
-    // Write operations rule
+    // Write operations rule - only allow auth or deny, no admin assumptions
     if (this.config.defaultWriteRule === 'auth') {
       rules.push(`const canWrite${model.name} = isAuthenticated;`);
-    } else if (this.config.defaultWriteRule === 'admin') {
-      rules.push(`const canWrite${model.name} = isAdmin;`);
     } else {
       rules.push(`const canWrite${model.name} = deny;`);
     }
-
-    // Owner-based rules for update/delete
-    rules.push(`const canModifyOwn${model.name} = rule<Context>()(({ ctx, input }) => {
-  // Check if user owns this ${_modelName}
-  return ctx.user?.id === (input as any)?.userId ||
-         ctx.user?.id === (input as any)?.authorId ||
-         ctx.user?.id === (input as any)?.ownerId;
-});`);
 
     return rules.length > 0 ? `// Rules for ${model.name} model\n${rules.join('\n')}` : '';
   }

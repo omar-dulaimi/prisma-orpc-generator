@@ -32,7 +32,7 @@ generator orpc {
   // ===== DEVELOPER EXPERIENCE =====
   generateDocumentation = "true"
   generateTests = "true"
-  enableDebugLogging = "true"
+  enableDebugLogging = "false"
   
   // ===== CODE GENERATION =====
   useBarrelExports = "true"
@@ -45,7 +45,7 @@ generator orpc {
 
   // ===== SHIELD / AUTHORIZATION =====
   generateShield = "true"
-  shieldPath = "../../src/custom-shield"
+  shieldPath = "src/custom-shield"
   // When shieldPath is provided, auto-generation is skipped
   // defaultReadRule = "allow"
   // defaultWriteRule = "auth"

@@ -1,6 +1,6 @@
 import { spawnSync } from 'child_process';
 import crypto from 'crypto';
-import { promises as fs } from 'fs';
+import { promises as fs, rmSync } from 'fs';
 import path from 'path';
 
 /**
@@ -33,6 +33,14 @@ export class TestWorkspace {
       await fs.rm(this.workspacePath, { recursive: true, force: true });
     } catch (error) {
       // Ignore cleanup errors
+      console.warn(`Failed to cleanup test workspace ${this.workspaceId}:`, error);
+    }
+  }
+
+  cleanupSync(): void {
+    try {
+      rmSync(this.workspacePath, { recursive: true, force: true });
+    } catch (error) {
       console.warn(`Failed to cleanup test workspace ${this.workspaceId}:`, error);
     }
   }
@@ -131,7 +139,7 @@ export function unregisterWorkspace(workspace: TestWorkspace): void {
 process.on('exit', () => {
   for (const workspace of activeWorkspaces) {
     try {
-      workspace.cleanup();
+      workspace.cleanupSync();
     } catch {
       // Ignore errors during exit cleanup
     }
