@@ -1,3 +1,24 @@
+## [1.1.0](https://github.com/omar-dulaimi/prisma-orpc-generator/compare/v1.0.1...v1.1.0) (2025-09-04)
+
+### 🚀 Features
+
+* improve authentication system and integrate oRPC Shield ([de633e7](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/de633e73d99b2acb56bdf6f27b44fc61765c898c))
+
+### 🐛 Bug Fixes
+
+* ensure schema-generator consistency for defaultWriteRule ([1525532](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/1525532e69e72f28ea0f3232bb6f5e2f7f620edd))
+* improve security and consistency in shield generator ([e0f29bf](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/e0f29bf648c6fa3a3ea7570edce155e26f298320))
+* preserve model name casing in shield configuration ([c63fc75](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/c63fc7588e56a49a5e4985f52394f3246baead67))
+* resolve pnpm version mismatch in GitHub Actions ([6eadd68](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/6eadd68f77d8d603df2a46bbcef9a762eda7d43d))
+
+### ♻️ Code Refactoring
+
+* improve shield generator and address code review feedback ([493e45e](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/493e45ec019180cd4ea8f94ab597bc46fe62b3da))
+
+### 📚 Documentation
+
+* clarify built-in vs custom rules in shield documentation ([2073e4d](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/2073e4da580348a903f013b347ed1d80d0c73f9d))
+
 ## [1.0.1](https://github.com/omar-dulaimi/prisma-orpc-generator/compare/v1.0.0...v1.0.1) (2025-09-04)
 
 ### ♻️ Code Refactoring
