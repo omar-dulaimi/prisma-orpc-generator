@@ -1,3 +1,15 @@
+## [1.0.1](https://github.com/omar-dulaimi/prisma-orpc-generator/compare/v1.0.0...v1.0.1) (2025-09-04)
+
+### ♻️ Code Refactoring
+
+* update naming from ORPC to oRPC across codebase and docs ([0495aca](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/0495aca005b07994243501b035fdbe0e7d47f628))
+
+### 📚 Documentation
+
+* fix badge URLs in README ([ba562cb](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/ba562cbde351f4edb1983d55fccd3db02fe76ed4))
+* fix incorrect links and file references in README ([2c59c33](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/2c59c334b2eb6b1a2655f55cb7152b64188140b7))
+* remove coverage badge from README ([2279149](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/22791495b1fb567070ad97595745c97b45f19ba3))
+
 ## 1.0.0 (2025-09-03)
 
 ### 🚀 Features
