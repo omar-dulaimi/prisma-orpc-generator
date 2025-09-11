@@ -16,7 +16,7 @@
   "dependencies": {
     "@orpc/openapi": "^1.8.5",
     "@orpc/server": "^1.8.7",
-    "@prisma/client": "^6.14.0",
+    "@prisma/client": "^6.16.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
