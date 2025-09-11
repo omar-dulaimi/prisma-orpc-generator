@@ -1,0 +1,67 @@
+version: 2
+updates:
+  # Root (uses pnpm via the "npm" ecosystem)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "07:00"
+      timezone: "Asia/Amman"
+    target-branch: "master"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase-if-necessary
+    labels: ["dependencies", "bot"]
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    groups:
+      prisma:
+        patterns: ["prisma", "@prisma/*"]
+      orpc:
+        patterns: ["orpc-shield", "@orpc/*"]
+      zod:
+        patterns: ["zod", "prisma-zod-generator"]
+      lint-and-format:
+        dependency-type: "development"
+        patterns: ["eslint*", "@typescript-eslint/*", "eslint-*", "eslint-plugin-*", "eslint-config-*", "prettier*"]
+      types:
+        dependency-type: "development"
+        patterns: ["@types/*"]
+      testing-and-build:
+        dependency-type: "development"
+        patterns: ["vitest", "@vitest/*", "vite", "vite-*"]
+      tooling:
+        dependency-type: "development"
+        patterns: ["typescript", "ts-node", "typedoc", "commander", "chalk", "pluralize", "dataloader"]
+
+  # Example app under examples/basic (present in your repo)
+  - package-ecosystem: "npm"
+    directory: "/examples/basic"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "07:15"
+      timezone: "Asia/Amman"
+    target-branch: "master"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "bot", "examples"]
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+
+  # Keep GitHub Actions up to date
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "07:30"
+      timezone: "Asia/Amman"
+    target-branch: "master"
+    labels: ["dependencies", "bot", "actions"]
+    groups:
+      actions:
+        patterns: ["*"]
