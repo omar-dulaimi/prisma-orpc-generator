@@ -30,7 +30,7 @@
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.3",
-    "prisma": "^6.16.0",
+    "prisma": "^6.16.1",
     "tsx": "^4.20.5",
     "typescript": "^5.7.2",
     "vite": "^7.1.5",
