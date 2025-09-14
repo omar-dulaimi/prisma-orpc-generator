@@ -69,7 +69,7 @@
     "@orpc/zod": "^1.8.6",
     "@prisma/generator-helper": "^6.15.0",
     "@prisma/internals": "^6.15.0",
-    "chalk": "^4.1.2",
+    "chalk": "^5.6.2",
     "commander": "^11.1.0",
     "dataloader": "^2.2.3",
     "pluralize": "^8.0.0",
