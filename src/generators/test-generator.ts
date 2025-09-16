@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import pluralize from 'pluralize';
 import { Config } from '../config/schema';
 import { PrismaModel } from '../types/generator-types';
 import { Logger } from '../utils/logger';
@@ -38,7 +39,7 @@ export class TestGenerator {
 
     testFile.addStatements(`
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { ${model.name.charAt(0).toLowerCase() + model.name.slice(1)}sRouter } from '../../routers/models/${model.name}.router';
+import { ${pluralize(model.name.toLowerCase())}Router as modelRouter } from '../../routers/models/${model.name}.router';
 import { createMockContext, MockContext } from '../utils/mock-context';
 
 describe('${model.name} Router', () => {
@@ -47,7 +48,7 @@ describe('${model.name} Router', () => {
 
   beforeEach(() => {
     mockContext = createMockContext();
-    router = ${model.name.charAt(0).toLowerCase() + model.name.slice(1)}sRouter;
+    router = modelRouter;
   });
 
   afterEach(() => {
