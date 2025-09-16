@@ -290,7 +290,7 @@ function generateHandlerCode(
   config: Config,
   model: CodeGenModel
 ): string {
-  const modelVar = modelName.toLowerCase();
+  const modelVar = modelName.charAt(0).toLowerCase() + modelName.slice(1);
   const _isWrite = [
     'create',
     'createMany',

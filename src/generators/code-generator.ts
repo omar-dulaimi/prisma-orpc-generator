@@ -315,7 +315,7 @@ export { ${routerName}Procedures };
 
   private generateRelationProcedures(model: PrismaModel): string {
     const modelName = model.name;
-    const modelVar = modelName.toLowerCase();
+    const modelVar = modelName.charAt(0).toLowerCase() + modelName.slice(1);
     const relFields = model.fields.filter(
       (f: PrismaField) => f.relationName && f.kind === 'object'
     );
