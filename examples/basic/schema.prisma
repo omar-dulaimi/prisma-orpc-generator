@@ -79,3 +79,10 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model AccommodationPricing {
+  id        String   @id @default(cuid())
+  price     Float
+  currency  String
+  createdAt DateTime @default(now())
+}
