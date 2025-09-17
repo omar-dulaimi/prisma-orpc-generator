@@ -466,7 +466,9 @@ export { ${routerName}Procedures };
   }
 
   private getProcedureName(baseOpType: string, modelName: string): string {
-    const prefix = this.config.showModelNameInProcedure ? modelName.toLowerCase() : '';
+    const prefix = this.config.showModelNameInProcedure 
+      ? modelName.charAt(0).toLowerCase() + modelName.slice(1)
+      : '';
 
     const operationMap: Record<string, string> = {
       create: 'create',
