@@ -15,8 +15,8 @@ importers:
         specifier: ^1.8.7
         version: 1.8.7
       '@prisma/client':
-        specifier: ^6.16.1
-        version: 6.16.1(prisma@6.16.2(typescript@5.9.2))(typescript@5.9.2)
+        specifier: ^6.16.2
+        version: 6.16.2(prisma@6.16.2(typescript@5.9.2))(typescript@5.9.2)
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
@@ -476,8 +476,8 @@ packages:
   '@orpc/standard-server@1.8.8':
     resolution: {integrity: sha512-dnfCOatufI8nWRVkyA1QzKgYWN2CfRbTf84T40W01JqjzlkvxKZkyX02njZ3QaH58IeKyGWHpbepk+VM7lAQ0Q==}
 
-  '@prisma/client@6.16.1':
-    resolution: {integrity: sha512-QaBCOY29lLAxEFFJgBPyW3WInCW52fJeQTmWx/h6YsP5u0bwuqP51aP0uhqFvhK9DaZPwvai/M4tSDYLVE9vRg==}
+  '@prisma/client@6.16.2':
+    resolution: {integrity: sha512-E00PxBcalMfYO/TWnXobBVUai6eW/g5OsifWQsQDzJYm7yaY+IRLo7ZLsaefi0QkTpxfuhFcQ/w180i6kX3iJw==}
     engines: {node: '>=18.18'}
     peerDependencies:
       prisma: '*'
@@ -1721,7 +1721,7 @@ snapshots:
     transitivePeerDependencies:
       - '@opentelemetry/api'
 
-  '@prisma/client@6.16.1(prisma@6.16.2(typescript@5.9.2))(typescript@5.9.2)':
+  '@prisma/client@6.16.2(prisma@6.16.2(typescript@5.9.2))(typescript@5.9.2)':
     optionalDependencies:
       prisma: 6.16.2(typescript@5.9.2)
       typescript: 5.9.2
