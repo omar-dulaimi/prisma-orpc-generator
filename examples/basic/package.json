@@ -14,7 +14,7 @@
     "test:generated": "vitest run --config /home/omar/Desktop/NewFolder/prisma-orpc-generator/examples/basic/src/generated/orpc/vitest.config.ts /home/omar/Desktop/NewFolder/prisma-orpc-generator/examples/basic/src/generated/orpc/tests/unit /home/omar/Desktop/NewFolder/prisma-orpc-generator/examples/basic/src/generated/orpc/tests/integration --environment node"
   },
   "dependencies": {
-    "@orpc/openapi": "^1.8.8",
+    "@orpc/openapi": "^1.9.1",
     "@orpc/server": "^1.8.7",
     "@prisma/client": "^6.16.2",
     "bcrypt": "^6.0.0",
