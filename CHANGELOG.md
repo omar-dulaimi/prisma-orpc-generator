@@ -1,3 +1,11 @@
+## [1.1.1](https://github.com/omar-dulaimi/prisma-orpc-generator/compare/v1.1.0...v1.1.1) (2025-09-17)
+
+### 🐛 Bug Fixes
+
+* correct model name casing from PascalCase to camelCase in generated Prisma client calls ([23b8151](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/23b815144d501b2368f5c8846d4a07046903835e)), closes [#34](https://github.com/omar-dulaimi/prisma-orpc-generator/issues/34) [#34](https://github.com/omar-dulaimi/prisma-orpc-generator/issues/34)
+* **generator:** correct procedure naming for multi-word models ([a23364c](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/a23364cad57ae5b4f435380f022f1ac7eb699d5e))
+* resolve import/export mismatch in generated test files ([0324ee8](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/0324ee85e7ecd409047a2cf3e001b987a9a7fdb6))
+
 ## [1.1.0](https://github.com/omar-dulaimi/prisma-orpc-generator/compare/v1.0.1...v1.1.0) (2025-09-04)
 
 ### 🚀 Features

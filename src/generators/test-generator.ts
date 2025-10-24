@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import pluralize from 'pluralize';
 import { Config } from '../config/schema';
 import { PrismaModel } from '../types/generator-types';
 import { Logger } from '../utils/logger';
@@ -38,7 +39,7 @@ export class TestGenerator {
 
     testFile.addStatements(`
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { ${model.name.toLowerCase()}sRouter } from '../../routers/models/${model.name}.router';
+import { ${pluralize(model.name.toLowerCase())}Router as modelRouter } from '../../routers/models/${model.name}.router';
 import { createMockContext, MockContext } from '../utils/mock-context';
 
 describe('${model.name} Router', () => {
@@ -47,7 +48,7 @@ describe('${model.name} Router', () => {
 
   beforeEach(() => {
     mockContext = createMockContext();
-    router = ${model.name.toLowerCase()}sRouter;
+    router = modelRouter;
   });
 
   afterEach(() => {
@@ -59,13 +60,13 @@ describe('${model.name} Router', () => {
       const input = ${JSON.stringify(this.generateTestData(model, 1, false, true), null, 6)};
       
       const expectedResult = { id: '1', ...input, ${this.generateTimestampFields()} };
-      mockContext.prisma.${model.name.toLowerCase()}.create.mockResolvedValue(expectedResult);
+      mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.create.mockResolvedValue(expectedResult);
 
-      const result = await router.${model.name.toLowerCase()}Create['~orpc'].handler({ input, context: mockContext });
+      const result = await router.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}Create['~orpc'].handler({ input, context: mockContext });
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(expectedResult);
-      expect(mockContext.prisma.${model.name.toLowerCase()}.create).toHaveBeenCalledWith({
+      expect(mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.create).toHaveBeenCalledWith({
         data: input
       });
     });
@@ -79,17 +80,17 @@ describe('${model.name} Router', () => {
         { id: '2', ...${JSON.stringify(this.generateTestData(model, 2, false, true), null, 8)}, ${this.generateTimestampFields()} }
       ];
 
-      mockContext.prisma.${model.name.toLowerCase()}.findMany.mockResolvedValue(mockData);
-      mockContext.prisma.${model.name.toLowerCase()}.count.mockResolvedValue(2);
+      mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findMany.mockResolvedValue(mockData);
+      mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.count.mockResolvedValue(2);
 
-      const result = await router.${model.name.toLowerCase()}FindMany['~orpc'].handler({ 
+      const result = await router.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}FindMany['~orpc'].handler({ 
         input: { take: 10, skip: 0 }, 
         context: mockContext 
       });
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockData);
-      expect(mockContext.prisma.${model.name.toLowerCase()}.findMany).toHaveBeenCalledWith({
+      expect(mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findMany).toHaveBeenCalledWith({
         take: 10,
         skip: 0
       });
@@ -100,25 +101,25 @@ describe('${model.name} Router', () => {
     it('should return a single ${model.name}', async () => {
       const mockData = { id: '1', ...${JSON.stringify(this.generateTestData(model, 1, false, true), null, 6)}, ${this.generateTimestampFields()} };
       
-      mockContext.prisma.${model.name.toLowerCase()}.findUnique.mockResolvedValue(mockData);
+      mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findUnique.mockResolvedValue(mockData);
 
-      const result = await router.${model.name.toLowerCase()}FindById['~orpc'].handler({ 
+      const result = await router.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}FindById['~orpc'].handler({ 
         input: { id: '1' }, 
         context: mockContext 
       });
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockData);
-      expect(mockContext.prisma.${model.name.toLowerCase()}.findUnique).toHaveBeenCalledWith({
+      expect(mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findUnique).toHaveBeenCalledWith({
         where: { id: '1' }
       });
     });
 
     it('should throw NOT_FOUND when ${model.name} does not exist', async () => {
-      mockContext.prisma.${model.name.toLowerCase()}.findUnique.mockResolvedValue(null);
+      mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findUnique.mockResolvedValue(null);
 
       await expect(
-        router.${model.name.toLowerCase()}FindById['~orpc'].handler({ 
+        router.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}FindById['~orpc'].handler({ 
           input: { id: 'non-existent' }, 
           context: mockContext 
         })
@@ -131,16 +132,16 @@ describe('${model.name} Router', () => {
       const updateData = ${JSON.stringify(this.generateTestData(model, 1, true, true), null, 6)};
       const updatedResult = { id: '1', ...updateData, ${this.generateTimestampFields()} };
       
-      mockContext.prisma.${model.name.toLowerCase()}.update.mockResolvedValue(updatedResult);
+      mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.update.mockResolvedValue(updatedResult);
 
-      const result = await router.${model.name.toLowerCase()}Update['~orpc'].handler({ 
+      const result = await router.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}Update['~orpc'].handler({ 
         input: { where: { id: '1' }, data: updateData }, 
         context: mockContext 
       });
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(updatedResult);
-      expect(mockContext.prisma.${model.name.toLowerCase()}.update).toHaveBeenCalledWith({
+      expect(mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.update).toHaveBeenCalledWith({
         where: { id: '1' },
         data: updateData
       });
@@ -205,19 +206,19 @@ ${models
       const createData = ${JSON.stringify(this.generateTestData(model), null, 6)};
       
       // TODO: Implement actual integration test
-      // const created = await client.${model.name.toLowerCase()}.create(createData);
+      // const created = await client.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.create(createData);
       // expect(created.success).toBe(true);
       // expect(created.data).toMatchObject(createData);
       
       // Read
-      // const found = await client.${model.name.toLowerCase()}.findUnique({ id: created.data.id });
+      // const found = await client.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findUnique({ id: created.data.id });
       // expect(found.success).toBe(true);
       // expect(found.data).toMatchObject(createData);
       
       // Update
       // TODO: Implement update test
       // const updateData = { /* sample data */ };
-      // const updated = await client.${model.name.toLowerCase()}.update({ 
+      // const updated = await client.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.update({ 
       //   where: { id: created.data.id },
       //   data: updateData 
       // });
@@ -225,13 +226,13 @@ ${models
       // expect(updated.data).toMatchObject(updateData);
       
       // Delete
-      // const deleted = await client.${model.name.toLowerCase()}.delete({ id: created.data.id });
+      // const deleted = await client.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.delete({ id: created.data.id });
       // expect(deleted.success).toBe(true);
     });
 
     it('should handle list operations with pagination', async () => {
       // TODO: Implement pagination test
-      // const result = await client.${model.name.toLowerCase()}.findMany({ take: 10, skip: 0 });
+      // const result = await client.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findMany({ take: 10, skip: 0 });
       // expect(result.success).toBe(true);
       // expect(result.meta.pagination).toBeDefined();
     });
