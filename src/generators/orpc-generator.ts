@@ -223,11 +223,6 @@ export class ORPCGenerator {
   private async analyzePrismaSchema(): Promise<DMMF.Document> {
     this.spinner.text = 'Analyzing Prisma schema...';
 
-    const prismaClientProvider = this.options.otherGenerators.find((generator) => {
-      const provider = parseEnvValue(generator.provider);
-      return provider === 'prisma-client-js' || provider === 'prisma-client';
-    });
-
     const dmmf = await getDMMF({
       datamodel: this.options.datamodel,
     });
