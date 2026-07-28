@@ -230,7 +230,6 @@ export class ORPCGenerator {
 
     const dmmf = await getDMMF({
       datamodel: this.options.datamodel,
-      previewFeatures: prismaClientProvider?.previewFeatures || [],
     });
 
     this.logger.debug(`Analyzed ${dmmf.datamodel.models.length} models from Prisma schema`);

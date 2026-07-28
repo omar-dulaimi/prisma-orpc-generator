@@ -307,13 +307,21 @@ function generateHandlerCode(
   // Add the main operation with correct Prisma method calls
   const prismaMethod = getPrismaMethodName(baseOpType);
 
+  // `select` and `include` are accepted by the generated input schema and supported by Prisma on
+  // every single-record operation, but the narrowed objects below used to rebuild the arguments from
+  // `where` and `data` alone, so both were validated and then dropped. A caller asking for a relation
+  // got no error and no relation. Spread conditionally, because Prisma rejects the keys when present
+  // and undefined, and rejects `select` together with `include`.
+  const relationArgs =
+    "...(input.select ? { select: input.select } : {}), ...(input.include ? { include: input.include } : {})";
+
   // Handle specific input patterns for different operations
   // Now that we use proper CRUD schemas, the input already has the correct structure
   let inputParam = '';
   switch (baseOpType) {
     case 'create':
       // CreateOneSchema provides { data: ... } structure
-      inputParam = '{ data: input.data }';
+      inputParam = `{ data: input.data, ${relationArgs} }`;
       break;
     case 'createMany':
       // CreateManySchema provides { data: ... } where data is array or single item
@@ -326,14 +334,14 @@ function generateHandlerCode(
       break;
     case 'findUnique':
       // FindUniqueSchema provides { where: ... } structure
-      inputParam = '{ where: input.where }';
+      inputParam = `{ where: input.where, ${relationArgs} }`;
       break;
     case 'update':
       // UpdateOneSchema provides { where: ..., data: ... } structure
       if (config.enableSoftDeletes && hasDeletedAt) {
-        inputParam = '{ where: { ...input.where, deletedAt: null }, data: input.data }';
+        inputParam = `{ where: { ...input.where, deletedAt: null }, data: input.data, ${relationArgs} }`;
       } else {
-        inputParam = '{ where: input.where, data: input.data }';
+        inputParam = `{ where: input.where, data: input.data, ${relationArgs} }`;
       }
       break;
     case 'updateMany':
@@ -346,7 +354,7 @@ function generateHandlerCode(
       break;
     case 'delete':
       // DeleteOneSchema provides { where: ... } structure
-      inputParam = '{ where: input.where }';
+      inputParam = `{ where: input.where, ${relationArgs} }`;
       break;
     case 'deleteMany':
       // DeleteManySchema provides { where: ... } structure
@@ -359,7 +367,7 @@ function generateHandlerCode(
       inputParam = 'input';
       break;
     case 'upsert':
-      inputParam = '{ where: input.where, create: input.create, update: input.update }';
+      inputParam = `{ where: input.where, create: input.create, update: input.update, ${relationArgs} }`;
       break;
     default:
       inputParam = 'input';
