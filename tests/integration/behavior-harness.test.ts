@@ -17,7 +17,7 @@ beforeAll(async () => {
     const adapter = new PrismaBetterSqlite3({ url: harnessDbUrl });
     prisma = new PrismaClient({ adapter });
   } catch {
-    // Fallback: attempt root client (may not match schema) – tests will skip if mismatch
+    // Fallback: attempt root client (may not match schema); tests will skip if mismatch
     try {
       const { PrismaClient } = require('@prisma/client');
       const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');

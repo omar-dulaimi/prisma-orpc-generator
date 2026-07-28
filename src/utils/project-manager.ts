@@ -62,7 +62,7 @@ export class ProjectManager {
             'clients',
             'tests',
             'utils',
-            // Optional feature dirs — clean them unless explicitly regenerated this run
+            // Optional feature dirs: clean them unless explicitly regenerated this run
             'benchmarks',
             'coverage-assets',
             'k8s',

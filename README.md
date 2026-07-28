@@ -16,7 +16,7 @@
 <p><em>Prisma v7+, Node 20.19+/22.12+/24.0+, TypeScript ≥ 5.4.</em></p>
 </div>
 
-> TL;DR — Add the generator to your Prisma schema and run Prisma generate. That’s it.
+> TL;DR: Add the generator to your Prisma schema and run Prisma generate. That’s it.
 
 ```prisma
 generator client {
@@ -92,7 +92,7 @@ npx prisma generate --config prisma.config.ts
 The generator itself and the Prisma CLI are build-time only. Everything the generated routers
 `import` has to be a runtime dependency of your app: `@orpc/server`, `zod`, `@prisma/client`, and
 `orpc-shield` (the generated `shield.ts` and `createRouter.ts` import it, and shield generation is
-on by default — drop it only if you set `generateShield = "false"`).
+on by default; drop it only if you set `generateShield = "false"`).
 
 ```bash
 # npm
@@ -204,15 +204,15 @@ Validated against [src/config/schema.ts](src/config/schema.ts). Below are the mo
 Core options
 | Option | Type | Default | Values | Description |
 |---|---|---|---|---|
-| output | string | ./src/generated/orpc | — | Directory for generated oRPC artifacts |
+| output | string | ./src/generated/orpc | any | Directory for generated oRPC artifacts |
 | schemaLibrary | enum | "zod" | zod | Schema validation library |
 | generateInputValidation | boolean (string) | "true" | "true", "false" | Emit Zod validation for inputs |
 | generateOutputValidation | boolean (string) | "true" | "true", "false" | Emit Zod validation for outputs |
 | strictValidation | boolean (string) | "true" | "true", "false" | Stricter Zod shapes for safety |
-| zodSchemasOutputPath | string | ./zod-schemas | — | Relative path (under output) for Zod files |
-| externalZodImportPath | string | ./zod-schemas | — | Module/path used when importing Zod schemas |
+| zodSchemasOutputPath | string | ./zod-schemas | any | Relative path (under output) for Zod files |
+| externalZodImportPath | string | ./zod-schemas | any | Module/path used when importing Zod schemas |
 | zodDateTimeStrategy | enum | "coerce" | "date", "coerce", "isoString" | How DateTime fields are modeled in Zod |
-| zodConfigPath | string | — | — | Path to custom zod.config.json file (relative to schema or absolute) |
+| zodConfigPath | string | none | any | Path to custom zod.config.json file (relative to schema or absolute) |
 
 Operational options
 | Option | Type | Default | Values | Description |
@@ -235,22 +235,22 @@ DX and formatting
 Runtime and integration
 | Option | Type | Default | Values | Description |
 |---|---|---|---|---|
-| prismaClientPath | string | @prisma/client | — | Import path for PrismaClient |
-| contextPath | string | "" | — | Optional path to your app's Context module |
-| serverPort | number (string) | 3000 | — | Port used by optional docs/server helpers |
-| apiPrefix | string | "" | — | Prefix used by optional docs/server helpers |
-| apiTitle | string | Generated API | — | API title for documentation |
-| apiDescription | string | Auto-generated API from Prisma schema | — | API description for documentation |
-| apiVersion | string | 1.0.0 | — | API version for documentation |
+| prismaClientPath | string | @prisma/client | any | Import path for PrismaClient |
+| contextPath | string | "" | any | Optional path to your app's Context module |
+| serverPort | number (string) | 3000 | any | Port used by optional docs/server helpers |
+| apiPrefix | string | "" | any | Prefix used by optional docs/server helpers |
+| apiTitle | string | Generated API | any | API title for documentation |
+| apiDescription | string | Auto-generated API from Prisma schema | any | API description for documentation |
+| apiVersion | string | 1.0.0 | any | API version for documentation |
 
 Shield / Authorization
 | Option | Type | Default | Values | Description |
 |---|---|---|---|---|
 | generateShield | boolean (string) | "true" | "true", "false" | Enable shield generation |
-| shieldPath | string | — | — | Path to custom shield file (absolute, relative to project root, relative to output dir, or module specifier) |
+| shieldPath | string | none | any | Path to custom shield file (absolute, relative to project root, relative to output dir, or module specifier) |
 | defaultReadRule | enum | "allow" | "allow", "deny", "auth" | Default rule for read operations |
 | defaultWriteRule | enum | "auth" | "auth", "deny", "allow" | Default rule for write operations |
-| denyErrorCode | string | "FORBIDDEN" | — | Error code for denied access |
+| denyErrorCode | string | "FORBIDDEN" | any | Error code for denied access |
 | debug | boolean (string) | "false" | "true", "false" | Enable debug logging |
 | allowExternalErrors | boolean (string) | "false" | "true", "false" | Allow detailed error messages from shields |
 Notes
@@ -583,10 +583,10 @@ const permissions = shield<Context>({
 | Option | Type | Default | Values | Description |
 |---|---|---|---|---|
 | generateShield | boolean (string) | "true" | "true", "false" | Enable shield generation |
-| shieldPath | string | — | — | Path to custom shield file (absolute, relative to project root, relative to output dir, or module specifier) |
+| shieldPath | string | none | any | Path to custom shield file (absolute, relative to project root, relative to output dir, or module specifier) |
 | defaultReadRule | enum | "allow" | "allow", "deny", "auth" | Default rule for read operations |
 | defaultWriteRule | enum | "auth" | "auth", "deny", "allow" | Default rule for write operations |
-| denyErrorCode | string | "FORBIDDEN" | — | Error code for denied access |
+| denyErrorCode | string | "FORBIDDEN" | any | Error code for denied access |
 | debug | boolean (string) | "false" | "true", "false" | Enable debug logging |
 | allowExternalErrors | boolean (string) | "false" | "true", "false" | Allow detailed error messages from shields |
 
@@ -716,7 +716,7 @@ Conventions
 <a id="license"></a>
 ## 📄 License
 
-- License: MIT — see the `LICENSE` file.
+- License: MIT. See the `LICENSE` file.
 - Copyright © 2025 Omar Dulaimi.
 
 ---

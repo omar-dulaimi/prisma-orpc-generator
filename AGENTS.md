@@ -41,6 +41,6 @@ This project is a TypeScript code generator for oRPC built around Prisma. Use No
 - Pre-merge: ensure `npm run build` and `npm run typecheck` pass.
 
 ## Security & Configuration Tips
-- Generated output defaults to `./src/generated/orpc` in consumer apps—never hardcode secrets.
+- Generated output defaults to `./src/generated/orpc` in consumer apps. Never hardcode secrets.
 - Use `prisma`/`@prisma/client` >= 7.0.0 to match peer deps.
 - Keep environment variables in `.env` and avoid committing sensitive data.
