@@ -212,8 +212,9 @@ export class ORPCGenerator {
       throw new Error(
         'oRPC Generator requires a Prisma Client generator. Please add the following to your schema:\n\n' +
           'generator client {\n' +
-          '  provider = "prisma-client-js"\n' +
-          '}'
+          '  provider = "prisma-client"\n' +
+          '}\n\n' +
+          'The older "prisma-client-js" provider is also accepted.'
       );
     }
 
