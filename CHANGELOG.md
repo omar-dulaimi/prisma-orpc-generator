@@ -1,3 +1,26 @@
+## [2.0.0](https://github.com/omar-dulaimi/prisma-orpc-generator/compare/v1.2.0...v2.0.0) (2026-07-28)
+
+### ⚠ BREAKING CHANGES
+
+* **breaking:** relation resolvers for a model whose primary key is not a
+`String` named `id` now take that model's real key fields instead of
+`{ id: string }`, and `groupBy` falls back to the real key columns instead of
+`id`. Callers of those procedures must send the real key, for example
+`{ accountId: 1 }` or `{ postSlug: 'x', label: 'y' }` in place of `{ id: '1' }`.
+Models keyed `id String @id` are unaffected.
+
+Claude-Session: https://claude.ai/code/session_018FDR2Y8LpjgfsdD4FhQVZZ
+
+### 🐛 Bug Fixes
+
+* **breaking:** derive the primary key instead of assuming a String `id` ([0b89b84](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/0b89b84aea09e52c0740b79ae1ef1cb5d6a91342))
+* pass select and include through on single-record operations ([a452d4f](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/a452d4f97cd9c6fd0e2334d7d2d53bd8f535893f)), closes [#112](https://github.com/omar-dulaimi/prisma-orpc-generator/issues/112)
+* run alongside the prisma-client generator, not only prisma-client-js ([e3e4608](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/e3e46080fa267eb10b4087c4f37b05e66ba28d02))
+
+### 📚 Documentation
+
+* remove em and en dashes from README, AGENTS and code comments ([48be642](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/48be642b2b6539a631164c45ed2a447869b736bf))
+
 ## [1.2.0](https://github.com/omar-dulaimi/prisma-orpc-generator/compare/v1.1.1...v1.2.0) (2025-11-23)
 
 ### ⚠ BREAKING CHANGES
