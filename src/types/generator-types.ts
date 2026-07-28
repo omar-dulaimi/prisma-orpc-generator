@@ -18,6 +18,7 @@ export interface PrismaField {
   name: string;
   type: string;
   isId: boolean;
+  isUnique: boolean;
   isOptional: boolean;
   isReadOnly: boolean;
   isList: boolean;

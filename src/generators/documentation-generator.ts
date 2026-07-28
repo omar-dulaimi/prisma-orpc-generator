@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { Config } from '../config/schema';
 import { Logger } from '../utils/logger';
+import { getPrimaryKeyInfo } from '../utils/primary-key';
 
 interface DocumentationField {
   name: string;
@@ -22,6 +23,21 @@ interface DocumentationModel {
   name: string;
   documentation?: string;
   fields: DocumentationField[];
+  primaryKey?: { name?: string | null; fields: string[] } | null;
+  uniqueFields?: string[][];
+  uniqueIndexes?: Array<{ name?: string | null; fields: string[] }>;
+}
+
+/**
+ * Describe the real key of a model. The old `|| 'id'` fallback printed a column that does not
+ * exist for composite keys and for models addressed through a unique constraint.
+ */
+function describePrimaryKey(model: DocumentationModel): string {
+  const pk = getPrimaryKeyInfo(model);
+  if (!pk) return 'none declared';
+  const names = pk.fields.map((f) => `\`${f.name}\` (${f.type})`).join(', ');
+  if (pk.isComposite) return `composite: ${names}`;
+  return pk.fromUniqueConstraint ? `${names} (unique constraint)` : names;
 }
 
 export class DocumentationGenerator {
@@ -88,7 +104,7 @@ ${model.documentation ? `${model.documentation}` : `Manage ${model.name} records
 
 - **Fields**: ${model.fields.length} (${model.fields.filter((f: DocumentationField) => f.isOptional).length} optional)
 - **Relations**: ${model.fields.filter((f: DocumentationField) => f.relationName).length}
-- **Primary Key**: ${model.fields.find((f: DocumentationField) => f.isId)?.name || 'id'}
+- **Primary Key**: ${describePrimaryKey(model)}
 
 **Available Operations:**
 - List all records: \`${model.name.toLowerCase()}FindMany\`
@@ -185,8 +201,10 @@ This document provides detailed information about all available API endpoints.
 ## Models
 
 ${models
-  .map(
-    (model) => `
+  .map((model) => {
+    // Composite `@@id` members carry `isId: false`, so the flag alone under-reports the key.
+    const keyFields = new Set(getPrimaryKeyInfo(model)?.fields.map((f) => f.name) ?? []);
+    return `
 ### ${model.name}
 
 ${model.documentation || `The ${model.name} model.`}
@@ -196,7 +214,7 @@ ${model.documentation || `The ${model.name} model.`}
 ${model.fields
   .map(
     (field: DocumentationField) => `
-- **${field.name}** (${field.type}${field.isList ? '[]' : ''})${field.isOptional ? ' - Optional' : ''}${field.isId ? ' - Primary Key' : ''}${field.isUnique ? ' - Unique' : ''}
+- **${field.name}** (${field.type}${field.isList ? '[]' : ''})${field.isOptional ? ' - Optional' : ''}${keyFields.has(field.name) ? ' - Primary Key' : ''}${field.isUnique ? ' - Unique' : ''}
   ${field.documentation ? `  - ${field.documentation}` : ''}
 `
   )
@@ -210,8 +228,8 @@ ${model.fields
 - \`PUT /${model.name.toLowerCase()}s/{id}\` - Update an existing ${model.name}
 - \`DELETE /${model.name.toLowerCase()}s/{id}\` - Delete a ${model.name}
 
-`
-  )
+`;
+  })
   .join('')}
 
 ## Error Handling

@@ -17,6 +17,13 @@ import {
   getOutputTypeByOpName,
   shouldGenerateOperation,
 } from '../utils/operation-utils';
+import {
+  getPrimaryKeyInfo,
+  primaryKeyInputType,
+  primaryKeyNeedsAssertion,
+  primaryKeyWhereLiteral,
+  primaryKeyZodObject,
+} from '../utils/primary-key';
 import { ProjectManager } from '../utils/project-manager';
 
 export class CodeGenerator {
@@ -321,26 +328,48 @@ export { ${routerName}Procedures };
     );
     if (!relFields.length) return '';
 
+    // A relation resolver loads one parent record and walks a relation off it, so it needs the
+    // model's real identifier. Assuming a `String id` produced code that neither compiled nor ran
+    // for an Int key, a renamed key or a composite `@@id`.
+    const pk = getPrimaryKeyInfo(model);
+    if (!pk) {
+      this.logger.warn(
+        `Skipping relation resolvers for ${modelName}: the model exposes no primary key or unique constraint to address a single record by.`
+      );
+      return '';
+    }
+
+    const validated = this.config.generateInputValidation || this.config.generateOutputValidation;
+    const inputPart = validated ? `.input(${primaryKeyZodObject(pk)})` : '';
+    const inputTypeParam = validated ? primaryKeyInputType(pk) : 'unknown';
+    // Enum and connector-specific keys are validated as strings, so the literal needs an assertion
+    // to reach Prisma's own key type. Plain scalars line up exactly and stay checked.
+    const assertWhere = !validated || primaryKeyNeedsAssertion(pk);
+    const whereType = `Prisma.${modelName}WhereUniqueInput`;
+
     return relFields
       .map((field: PrismaField) => {
         const relName = field.name;
         const procedureName = `${modelVar}${this.capitalize(relName)}`;
-
-        // Only use z.object if validation is enabled
-        const inputPart =
-          this.config.generateInputValidation || this.config.generateOutputValidation
-            ? `.input(z.object({ id: z.string() }))`
-            : '';
+        const source = validated ? 'input' : 'args';
+        const readInput = validated
+          ? ''
+          : `\n      const args = (input ?? {}) as Record<string, any>;`;
+        const whereLiteral = primaryKeyWhereLiteral(pk, source);
+        const whereDecl = assertWhere
+          ? `const where = ${whereLiteral} as ${whereType};`
+          : `const where: ${whereType} = ${whereLiteral};`;
 
         return `  /**
    * ${procedureName} - relation resolver for ${modelName}.${relName}
+   * Keyed by ${pk.fields.map((f) => `${f.name}: ${f.type}`).join(', ')}${pk.fromUniqueConstraint ? ' (unique constraint; the model declares no @id)' : ''}
    */
   ${procedureName}: publicProcedure${inputPart}
-    .handler(async (opt: import('@orpc/server').ProcedureHandlerOptions<Context, ${inputPart ? '{ id: string }' : 'unknown'}, any, any>) => {
-      const { input, context } = opt;
-      const id = ${inputPart ? 'input.id' : '(input as any)?.id'};
+    .handler(async (opt: import('@orpc/server').ProcedureHandlerOptions<Context, ${inputTypeParam}, any, any>) => {
+      const { input, context } = opt;${readInput}
+      ${whereDecl}
       const related = await context.prisma.${modelVar}.findUnique({
-        where: { id }
+        where
       }).${relName}();
       return related;
     })`;

@@ -27,7 +27,7 @@ export {
   hasSoftDeleteField,
   resolveModelsComments,
   shouldHaveAuditFields,
-  supportsFullTextSearch
+  supportsFullTextSearch,
 } from './utils/model-utils';
 export {
   getHttpMethod,
@@ -40,7 +40,7 @@ export {
   requiresAuthentication,
   returnsMultiple,
   shouldGenerateOperation,
-  supportsCaching
+  supportsCaching,
 } from './utils/operation-utils';
 export { ProjectManager } from './utils/project-manager';
 

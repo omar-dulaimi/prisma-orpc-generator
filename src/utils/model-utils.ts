@@ -1,6 +1,7 @@
 import { Config } from '../config/schema';
 import type { DMMF } from '@prisma/generator-helper';
 import { FieldKind, PrismaField, PrismaModel } from '../types/generator-types';
+import { primaryKeyFieldNames, type PrimaryKeyModelLike } from './primary-key';
 
 interface ValidationConstraint {
   required?: boolean;
@@ -20,6 +21,7 @@ function convertDMMFFieldToPrismaField(field: DMMF.Field): PrismaField {
     name: field.name,
     type: field.type,
     isId: field.isId,
+    isUnique: field.isUnique,
     isOptional: !field.isRequired,
     isReadOnly: field.isReadOnly,
     isList: field.isList,
@@ -199,11 +201,14 @@ export function getUniqueFields(model: DMMF.Model): string[] {
  */
 export function getSearchableFields(model: DMMF.Model): string[] {
   const searchableTypes = ['String', 'Int', 'BigInt', 'Float', 'Decimal'];
+  // Exclude the model's actual key columns, not whatever happens to be called `id`. A model keyed
+  // on `slug` used to advertise `slug` as free-text searchable while hiding an unrelated `id`.
+  const keyFields = new Set(primaryKeyFieldNames(model as unknown as PrimaryKeyModelLike));
 
   return model.fields
     .filter(
       (field: DMMF.Field) =>
-        searchableTypes.includes(field.type) && !field.isList && field.name !== 'id'
+        searchableTypes.includes(field.type) && !field.isList && !keyFields.has(field.name)
     )
     .map((field: DMMF.Field) => field.name);
 }

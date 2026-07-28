@@ -4,6 +4,11 @@ import pluralize from 'pluralize';
 import { Config } from '../config/schema';
 import { PrismaModel } from '../types/generator-types';
 import { Logger } from '../utils/logger';
+import {
+  getPrimaryKeyInfo,
+  type PrimaryKeyFieldLike,
+  type PrimaryKeyInfo,
+} from '../utils/primary-key';
 import { ProjectManager } from '../utils/project-manager';
 
 export class TestGenerator {
@@ -37,6 +42,13 @@ export class TestGenerator {
       { overwrite: true }
     );
 
+    const pk = getPrimaryKeyInfo(model);
+    // Records the mocks resolve with, keyed the way the model is actually keyed.
+    const pkFields = (seed: number) => (pk ? `${this.primaryKeyEntries(pk, seed)}, ` : '');
+    const pkWhere = (seed: number) => (pk ? this.primaryKeyWhere(pk, seed) : '{}');
+    // A key that no record carries, for the NOT_FOUND path.
+    const pkMissingWhere = pk ? this.primaryKeyWhere(pk, 404) : '{}';
+
     testFile.addStatements(`
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ${pluralize(model.name.toLowerCase())}Router as modelRouter } from '../../routers/models/${model.name}.router';
@@ -59,7 +71,7 @@ describe('${model.name} Router', () => {
     it('should create a new ${model.name}', async () => {
       const input = ${JSON.stringify(this.generateTestData(model, 1, false, true), null, 6)};
       
-      const expectedResult = { id: '1', ...input, ${this.generateTimestampFields()} };
+      const expectedResult = { ${pkFields(1)}...input, ${this.generateTimestampFields()} };
       mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.create.mockResolvedValue(expectedResult);
 
       const result = await router.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}Create['~orpc'].handler({ input, context: mockContext });
@@ -76,8 +88,8 @@ describe('${model.name} Router', () => {
   describe('findMany', () => {
     it('should return paginated results', async () => {
       const mockData = [
-        { id: '1', ...${JSON.stringify(this.generateTestData(model, 1, false, true), null, 8)}, ${this.generateTimestampFields()} },
-        { id: '2', ...${JSON.stringify(this.generateTestData(model, 2, false, true), null, 8)}, ${this.generateTimestampFields()} }
+        { ${pkFields(1)}...${JSON.stringify(this.generateTestData(model, 1, false, true), null, 8)}, ${this.generateTimestampFields()} },
+        { ${pkFields(2)}...${JSON.stringify(this.generateTestData(model, 2, false, true), null, 8)}, ${this.generateTimestampFields()} }
       ];
 
       mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findMany.mockResolvedValue(mockData);
@@ -99,19 +111,19 @@ describe('${model.name} Router', () => {
 
   describe('findUnique', () => {
     it('should return a single ${model.name}', async () => {
-      const mockData = { id: '1', ...${JSON.stringify(this.generateTestData(model, 1, false, true), null, 6)}, ${this.generateTimestampFields()} };
+      const mockData = { ${pkFields(1)}...${JSON.stringify(this.generateTestData(model, 1, false, true), null, 6)}, ${this.generateTimestampFields()} };
       
       mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findUnique.mockResolvedValue(mockData);
 
       const result = await router.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}FindById['~orpc'].handler({ 
-        input: { id: '1' }, 
+        input: { where: ${pkWhere(1)} }, 
         context: mockContext 
       });
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockData);
       expect(mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findUnique).toHaveBeenCalledWith({
-        where: { id: '1' }
+        where: ${pkWhere(1)}
       });
     });
 
@@ -120,7 +132,7 @@ describe('${model.name} Router', () => {
 
       await expect(
         router.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}FindById['~orpc'].handler({ 
-          input: { id: 'non-existent' }, 
+          input: { where: ${pkMissingWhere} }, 
           context: mockContext 
         })
       ).rejects.toThrow(/NOT_FOUND|Not Found/);
@@ -130,19 +142,19 @@ describe('${model.name} Router', () => {
   describe('update', () => {
     it('should update an existing ${model.name}', async () => {
       const updateData = ${JSON.stringify(this.generateTestData(model, 1, true, true), null, 6)};
-      const updatedResult = { id: '1', ...updateData, ${this.generateTimestampFields()} };
+      const updatedResult = { ${pkFields(1)}...updateData, ${this.generateTimestampFields()} };
       
       mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.update.mockResolvedValue(updatedResult);
 
       const result = await router.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}Update['~orpc'].handler({ 
-        input: { where: { id: '1' }, data: updateData }, 
+        input: { where: ${pkWhere(1)}, data: updateData }, 
         context: mockContext 
       });
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(updatedResult);
       expect(mockContext.prisma.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.update).toHaveBeenCalledWith({
-        where: { id: '1' },
+        where: ${pkWhere(1)},
         data: updateData
       });
     });
@@ -198,8 +210,18 @@ describe('API Integration Tests', () => {
   });
 
 ${models
-  .map(
-    (model) => `
+  .map((model) => {
+    const pk = getPrimaryKeyInfo(model);
+    // The scaffolding below addresses a record by key, so it has to name the model's real key
+    // rather than a `id` that may not exist.
+    const keyFrom = (source: string) =>
+      pk
+        ? pk.isComposite && pk.compoundKey
+          ? `{ ${pk.compoundKey}: { ${pk.fields.map((f) => `${f.name}: ${source}.${f.name}`).join(', ')} } }`
+          : `{ ${pk.fields.map((f) => `${f.name}: ${source}.${f.name}`).join(', ')} }`
+        : '{ /* no primary key on this model */ }';
+    const createdKey = keyFrom('created.data');
+    return `
   describe('${model.name} API', () => {
     it('should create, read, update, and delete ${model.name}', async () => {
       // Create
@@ -211,7 +233,7 @@ ${models
       // expect(created.data).toMatchObject(createData);
       
       // Read
-      // const found = await client.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findUnique({ id: created.data.id });
+      // const found = await client.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.findUnique({ where: ${createdKey} });
       // expect(found.success).toBe(true);
       // expect(found.data).toMatchObject(createData);
       
@@ -219,14 +241,14 @@ ${models
       // TODO: Implement update test
       // const updateData = { /* sample data */ };
       // const updated = await client.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.update({ 
-      //   where: { id: created.data.id },
+      //   where: ${createdKey},
       //   data: updateData 
       // });
       // expect(updated.success).toBe(true);
       // expect(updated.data).toMatchObject(updateData);
       
       // Delete
-      // const deleted = await client.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.delete({ id: created.data.id });
+      // const deleted = await client.${model.name.charAt(0).toLowerCase() + model.name.slice(1)}.delete({ where: ${createdKey} });
       // expect(deleted.success).toBe(true);
     });
 
@@ -236,8 +258,8 @@ ${models
       // expect(result.success).toBe(true);
       // expect(result.meta.pagination).toBeDefined();
     });
-  });`
-  )
+  });`;
+  })
   .join('\n')}
 
   describe('Error Handling', () => {
@@ -491,6 +513,45 @@ process.env.NODE_ENV = 'test';
 
   private generateTimestampFields(): string {
     return 'createdAt: new Date(), updatedAt: new Date()';
+  }
+
+  /**
+   * A TypeScript literal standing in for one primary key field. Mock records and `where` clauses
+   * used to hardcode the string `'1'` under the key `id`, which no model with an Int key, a
+   * renamed key or a composite `@@id` ever matches.
+   */
+  private samplePrimaryKeyValue(field: PrimaryKeyFieldLike, seed: number): string {
+    if ((field.kind ?? 'scalar') !== 'scalar') return `'test_${field.name}_${seed}'`;
+    switch (field.type) {
+      case 'Int':
+        return `${seed}`;
+      case 'BigInt':
+        return `BigInt(${seed})`;
+      case 'Float':
+      case 'Decimal':
+        return `${seed * 1.5}`;
+      case 'Boolean':
+        return `${seed % 2 === 0}`;
+      case 'DateTime':
+        return `new Date(${seed})`;
+      case 'Bytes':
+        return `new Uint8Array([${seed}])`;
+      default:
+        return `'test_${field.name}_${seed}'`;
+    }
+  }
+
+  /** `accountId: 1` / `postSlug: 'test_postSlug_1', label: 'test_label_1'` */
+  private primaryKeyEntries(pk: PrimaryKeyInfo, seed: number): string {
+    return pk.fields.map((f) => `${f.name}: ${this.samplePrimaryKeyValue(f, seed)}`).join(', ');
+  }
+
+  /** A `where` literal addressing one record, nesting composite keys under their compound key. */
+  private primaryKeyWhere(pk: PrimaryKeyInfo, seed: number): string {
+    const entries = this.primaryKeyEntries(pk, seed);
+    return pk.isComposite && pk.compoundKey
+      ? `{ ${pk.compoundKey}: { ${entries} } }`
+      : `{ ${entries} }`;
   }
 
   private generateTestData(

@@ -6,8 +6,41 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Everything above this job reads `src/`, which is exactly where defects that only exist in the
+  # published tarball hide. This job packs the package, installs it into an empty directory with
+  # only the dependencies the README tells users to install, generates, and typechecks the result.
+  packaged:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['22.12.0', '24.10.0']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify the packed artifact
+        run: node scripts/verify-packed-output.mjs
+
   release:
     runs-on: ubuntu-latest
+    needs: packaged
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     permissions:
       contents: write

@@ -88,16 +88,28 @@ npx prisma generate --config prisma.config.ts
 - TypeScript ≥ 5.4.0 recommended
 
 **Install**
+
+The generator itself and the Prisma CLI are build-time only. Everything the generated routers
+`import` has to be a runtime dependency of your app: `@orpc/server`, `zod`, `@prisma/client`, and
+`orpc-shield` (the generated `shield.ts` and `createRouter.ts` import it, and shield generation is
+on by default — drop it only if you set `generateShield = "false"`).
+
 ```bash
 # npm
-npm install -D prisma-orpc-generator zod prisma @prisma/client
+npm install @orpc/server orpc-shield zod @prisma/client
+npm install -D prisma-orpc-generator prisma
 
 # pnpm
-pnpm add -D prisma-orpc-generator zod prisma @prisma/client
+pnpm add @orpc/server orpc-shield zod @prisma/client
+pnpm add -D prisma-orpc-generator prisma
 
 # yarn
-yarn add -D prisma-orpc-generator zod prisma @prisma/client
+yarn add @orpc/server orpc-shield zod @prisma/client
+yarn add -D prisma-orpc-generator prisma
 ```
+
+Serving the routers over HTTP additionally needs a handler package, e.g. `@orpc/openapi` for the
+OpenAPI server shown further down.
 
 Add the generator (minimal)
 ```prisma

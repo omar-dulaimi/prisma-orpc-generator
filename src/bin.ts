@@ -12,19 +12,19 @@ if (process.argv.includes('--version') || process.argv.includes('-v')) {
 
 if (process.argv.includes('--check')) {
   const compatibility = checkCompatibility();
-  
+
   if (compatibility.compatible) {
     console.log('✅ Environment is compatible');
   } else {
     console.log('❌ Compatibility issues found:');
-    compatibility.issues.forEach(issue => console.log(`  - ${issue}`));
+    compatibility.issues.forEach((issue) => console.log(`  - ${issue}`));
   }
-  
+
   if (compatibility.recommendations.length > 0) {
     console.log('💡 Recommendations:');
-    compatibility.recommendations.forEach(rec => console.log(`  - ${rec}`));
+    compatibility.recommendations.forEach((rec) => console.log(`  - ${rec}`));
   }
-  
+
   process.exit(compatibility.compatible ? 0 : 1);
 }
 

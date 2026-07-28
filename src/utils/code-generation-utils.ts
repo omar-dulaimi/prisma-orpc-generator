@@ -4,6 +4,7 @@ import { SourceFile } from 'ts-morph';
 import { Config } from '../config/schema';
 import { getAvailableAggregations } from './model-utils';
 import { getPrismaMethodName } from './operation-utils';
+import { getPrimaryKeyInfo } from './primary-key';
 
 // Type interfaces for code generation
 interface CodeGenField {
@@ -21,6 +22,27 @@ interface CodeGenField {
 interface CodeGenModel {
   name: string;
   fields: CodeGenField[];
+  primaryKey?: { name?: string | null; fields: string[] } | null;
+  uniqueFields?: string[][];
+  uniqueIndexes?: Array<{ name?: string | null; fields: string[] }>;
+}
+
+/**
+ * Scalar columns to group by when the caller sends `by: []`, and to order by when they paginate a
+ * groupBy without an explicit order. Prefers the model's primary key, which is what `id` was a
+ * guess at, and falls back to the first plain scalar column for a model that has no key at all.
+ */
+function groupByFallbackFields(model: CodeGenModel): string[] {
+  const pk = getPrimaryKeyInfo(model);
+  const scalarPkFields = (pk?.fields ?? []).filter(
+    (f) => (f.kind ?? 'scalar') !== 'object' && !f.isList
+  );
+  if (scalarPkFields.length > 0) return scalarPkFields.map((f) => f.name);
+
+  const firstScalar = model.fields.find(
+    (f) => (f.kind ?? 'scalar') === 'scalar' && !f.isList && !f.relationName
+  );
+  return firstScalar ? [firstScalar.name] : ['id'];
 }
 
 /**
@@ -313,7 +335,7 @@ function generateHandlerCode(
   // got no error and no relation. Spread conditionally, because Prisma rejects the keys when present
   // and undefined, and rejects `select` together with `include`.
   const relationArgs =
-    "...(input.select ? { select: input.select } : {}), ...(input.include ? { include: input.include } : {})";
+    '...(input.select ? { select: input.select } : {}), ...(input.include ? { include: input.include } : {})';
 
   // Handle specific input patterns for different operations
   // Now that we use proper CRUD schemas, the input already has the correct structure
@@ -418,17 +440,24 @@ function generateHandlerCode(
     // Analyze which aggregations are available for this model
     const aggregations = getAvailableAggregations(model);
 
+    // `by` and the pagination fallback `orderBy` both need a column that exists. Hardcoding `id`
+    // made Prisma reject every groupBy on a model whose key is named anything else. Fall back to
+    // the model's real key, and to the first scalar field when it has none.
+    const groupByFallback = groupByFallbackFields(model);
+    const byFallback = `[${groupByFallback.map((name) => `'${name}'`).join(', ')}]`;
+    const orderByFallback = `[{ ${groupByFallback[0]}: 'asc' }]`;
+
     handler += `
   type _GroupByArgs = Partial<Prisma.${modelName}GroupByArgs> & { by: Prisma.${modelName}ScalarFieldEnum[] };
       const args: _GroupByArgs = {} as _GroupByArgs;
-      if (input?.by) (args as any).by = (input.by as any[]).length ? input.by : ['id'];
+      if (input?.by) (args as any).by = (input.by as any[]).length ? input.by : ${byFallback};
       if (input?.where) (args as any).where = input.where as Prisma.${modelName}WhereInput;
       if (input?.orderBy) (args as any).orderBy = input.orderBy as any;
       if (input?.having) (args as any).having = input.having as any;
       if (input?.take) (args as any).take = Math.min(input.take as number, 500);
       if (input?.skip) (args as any).skip = input.skip as number;`;
     handler += `
-      if (((args as any).take || (args as any).skip) && !(args as any).orderBy) { (args as any).orderBy = [{ id: 'asc' }] as any; }`;
+      if (((args as any).take || (args as any).skip) && !(args as any).orderBy) { (args as any).orderBy = ${orderByFallback} as any; }`;
 
     // Only include aggregations that are supported by the model
     if (aggregations.supportsCount) {

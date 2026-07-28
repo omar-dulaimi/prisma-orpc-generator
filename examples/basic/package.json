@@ -11,7 +11,7 @@
     "db:push": "prisma db push --config prisma.config.ts",
     "db:seed": "tsx src/seed.ts",
     "generate": "prisma generate --config prisma.config.ts",
-    "test:generated": "vitest run --config /home/omar/Desktop/NewFolder/prisma-orpc-generator/examples/basic/src/generated/orpc/vitest.config.ts /home/omar/Desktop/NewFolder/prisma-orpc-generator/examples/basic/src/generated/orpc/tests/unit /home/omar/Desktop/NewFolder/prisma-orpc-generator/examples/basic/src/generated/orpc/tests/integration --environment node"
+    "test:generated": "vitest run --config src/generated/orpc/vitest.config.ts src/generated/orpc/tests/unit src/generated/orpc/tests/integration --environment node"
   },
   "dependencies": {
     "@orpc/openapi": "^1.11.3",
